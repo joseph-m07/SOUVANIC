@@ -7547,3 +7547,155 @@ th[aria-sort="descending"] .th-orden i {
     width: auto !important;
     margin: 0 !important;
 }
+
+/* ==========================================
+   SOCIOS: ESTILO LISTA CON CHEVRON (>) Y VENTANA DE OPCIONES
+   ========================================== */
+.tabla-socios-lista tbody tr.socio-fila {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.tabla-socios-lista tbody tr.socio-fila:hover,
+.tabla-socios-lista tbody tr.socio-fila:focus-visible {
+    background-color: #f1f5f9;
+    outline: none;
+}
+
+.col-chevron {
+    width: 44px;
+    text-align: right;
+}
+
+.socio-chevron-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+tr.socio-fila:hover .socio-chevron-btn {
+    background: #e2e8f0;
+    color: #1a4b77;
+    transform: translateX(2px);
+}
+
+.socio-opciones-modal {
+    max-width: 460px;
+}
+
+.socio-opciones-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 14px;
+}
+
+.socio-opciones-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #e0f2fe;
+    color: #1a4b77;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.socio-opciones-header h2 {
+    margin: 0 0 2px;
+    font-size: 1.15rem;
+}
+
+.socio-opciones-id {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.socio-opciones-datos {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 16px;
+}
+
+.socio-dato-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.88rem;
+}
+
+.socio-dato-label {
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.socio-dato-item strong {
+    color: #0f172a;
+    text-align: right;
+    word-break: break-word;
+}
+
+.socio-opciones-acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-socio-opcion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-socio-opcion span {
+    flex: 1;
+    text-align: left;
+}
+
+.btn-socio-opcion:hover {
+    background: #f8fafc;
+    border-color: #1a4b77;
+    color: #1a4b77;
+}
+
+.btn-socio-opcion.btn-socio-eliminar {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+.btn-socio-opcion.btn-socio-eliminar:hover {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
