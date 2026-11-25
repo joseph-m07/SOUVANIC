@@ -7822,3 +7822,55 @@ tr.socio-fila:hover .socio-chevron-btn {
         box-shadow: none;
     }
 }
+
+/* ==========================================
+   MODAL INDEPENDIENTE DE VOUCHER Y BOTONES SOLO ICONO
+   ========================================== */
+.modal-voucher-overlay {
+    z-index: 2500 !important;
+}
+
+.modal-voucher-caja {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px 16px 18px;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+    max-width: 95vw;
+    max-height: 92vh;
+    overflow-y: auto;
+}
+
+.modal-voucher-barra {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.acciones-modal-factura {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-icono-factura {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0 !important;
+    border-radius: 10px;
+    font-size: 1.1rem;
+}
+
+.btn-icono-cerrar {
+    background: #e2e8f0 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.btn-icono-cerrar:hover {
+    background: #cbd5e1 !important;
+    color: #0f172a !important;
+}

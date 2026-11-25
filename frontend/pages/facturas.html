@@ -851,8 +851,68 @@
         </div>
 
 
-        <!-- VISTA VOUCHER 80MM -->
-        <div id="voucherFacturaContenedor" class="voucher-80mm" hidden>
+        <!-- BOTONES INFERIORES -->
+        <div class="acciones-modal-factura">
+
+            <button
+                type="button"
+                id="abrirModalVoucher"
+                class="btn-icono-factura"
+                title="Ver Voucher (80mm)"
+                aria-label="Ver Voucher (80mm)"
+            >
+                <i class="bi bi-receipt" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                id="imprimirFactura"
+                class="btn-icono-factura"
+                title="Imprimir factura"
+                aria-label="Imprimir factura"
+            >
+                <i class="bi bi-printer" aria-hidden="true"></i>
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- MODAL INDEPENDIENTE DE VOUCHER 80MM -->
+<section
+    class="modal-factura modal-voucher-overlay"
+    id="modalVoucherFactura"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Voucher de factura 80mm"
+    hidden
+>
+    <div class="modal-voucher-caja">
+        <div class="modal-voucher-barra">
+            <button
+                type="button"
+                id="imprimirVoucher"
+                class="btn-icono-factura"
+                title="Imprimir voucher"
+                aria-label="Imprimir voucher"
+            >
+                <i class="bi bi-printer" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                id="cerrarModalVoucher"
+                class="btn-icono-factura btn-icono-cerrar"
+                title="Cerrar voucher"
+                aria-label="Cerrar voucher"
+            >
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div id="voucherFacturaContenedor" class="voucher-80mm">
             <div class="voucher-encabezado">
                 <img src="../assets/Logo.png" alt="SOUVANIC" class="voucher-logo">
                 <h3>NICARAGUA SOUVENIR</h3>
@@ -882,29 +942,7 @@
                 <p>Registrado en SOUVANIC</p>
             </div>
         </div>
-
-        <!-- BOTONES INFERIORES -->
-        <div class="acciones-modal-factura">
-
-            <button type="button" id="alternarVistaVoucher" class="btn-secundario">
-                <i class="bi bi-receipt"></i>
-                Vista Voucher (80mm)
-            </button>
-
-            <button type="button" id="imprimirVoucher" class="btn-secundario">
-                <i class="bi bi-printer"></i>
-                Imprimir voucher
-            </button>
-
-            <button type="button" id="imprimirFactura">
-                <i class="bi bi-printer"></i>
-                Imprimir factura
-            </button>
-
-        </div>
-
     </div>
-
 </section>
 
 
