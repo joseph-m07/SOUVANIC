@@ -724,6 +724,7 @@ async function cargarProductos() {
 
         actualizarListaProductos();
         mostrarDetalleFactura();
+        renderizarCatalogoPOS();
 
         const productoActual = resolverProducto(facturaProductoBusqueda.value);
 
@@ -1893,6 +1894,7 @@ function limpiarFormularioFactura() {
     renderPagos();
     actualizarResumenPagos();
     salirModoEdicionWizard();
+    renderizarCatalogoPOS();
 }
 
 async function confirmarLimpiarFormulario() {
@@ -2902,6 +2904,116 @@ confirmarAnulacionFactura.addEventListener("click", async function() {
         anulandoFactura = false;
         confirmarAnulacionFactura.disabled = false;
         cancelarAnulacionFactura.disabled = false;
+    }
+});
+
+const posCatalogoGrid = document.getElementById("posCatalogoGrid");
+const posCategoriaFiltros = document.getElementById("posCategoriaFiltros");
+let posCategoriaActiva = "todas";
+
+function renderizarCatalogoPOS() {
+    if (!posCatalogoGrid) return;
+
+    const activos = productosDisponibles.filter(p => p.Activo !== false);
+
+    if (posCategoriaFiltros) {
+        const categorias = ["todas", ...new Set(activos.map(p => p.Categoria || "Sin categoría"))];
+        posCategoriaFiltros.innerHTML = "";
+        categorias.forEach(cat => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "socio-filtro-btn" + (posCategoriaActiva === cat ? " active" : "");
+            btn.textContent = cat === "todas" ? "Todas" : cat;
+            btn.addEventListener("click", () => {
+                posCategoriaActiva = cat;
+                renderizarCatalogoPOS();
+            });
+            posCategoriaFiltros.appendChild(btn);
+        });
+    }
+
+    const termino = (facturaProductoBusqueda?.value || "").trim().toLowerCase();
+    const filtrados = activos.filter(p => {
+        const cat = p.Categoria || "Sin categoría";
+        const coincideCat = posCategoriaActiva === "todas" || cat === posCategoriaActiva;
+        const coincideTexto = !termino ||
+            String(p.Nombre || "").toLowerCase().includes(termino) ||
+            String(p.CodigoProducto || "").toLowerCase().includes(termino);
+        return coincideCat && coincideTexto;
+    });
+
+    posCatalogoGrid.innerHTML = "";
+
+    if (filtrados.length === 0) {
+        const vacio = document.createElement("p");
+        vacio.className = "texto-secundario";
+        vacio.textContent = "No hay productos que coincidan con el filtro.";
+        posCatalogoGrid.appendChild(vacio);
+        return;
+    }
+
+    filtrados.forEach(prod => {
+        const stock = Number(prod.Stock) || 0;
+        const enCarritoItem = detalleFactura.find(d => d.codigo === prod.CodigoProducto);
+        const cantCarrito = enCarritoItem ? Number(enCarritoItem.cantidad) : 0;
+
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "pos-producto-card" + (cantCarrito > 0 ? " en-carrito" : "");
+        card.dataset.codigo = prod.CodigoProducto;
+        card.disabled = stock <= 0 || cantCarrito >= stock;
+
+        if (cantCarrito > 0) {
+            const badge = document.createElement("span");
+            badge.className = "pos-card-badge-carrito";
+            badge.textContent = String(cantCarrito);
+            card.appendChild(badge);
+        }
+
+        const catEl = document.createElement("span");
+        catEl.className = "pos-card-categoria";
+        catEl.textContent = prod.Categoria || "General";
+
+        const nomEl = document.createElement("strong");
+        nomEl.className = "pos-card-nombre";
+        nomEl.textContent = prod.Nombre;
+
+        const codEl = document.createElement("span");
+        codEl.className = "pos-card-codigo";
+        codEl.textContent = prod.CodigoProducto;
+
+        const pie = document.createElement("div");
+        pie.className = "pos-card-pie";
+
+        const precioEl = document.createElement("span");
+        precioEl.className = "pos-card-precio";
+        precioEl.textContent = `C$ ${formatearMoneda(prod.Precio)}`;
+
+        const stockEl = document.createElement("span");
+        stockEl.className = "pos-card-stock" + (stock <= 0 ? " agotado" : "");
+        stockEl.textContent = stock <= 0 ? "Agotado" : `Stock: ${stock}`;
+
+        pie.append(precioEl, stockEl);
+        card.append(catEl, nomEl, codEl, pie);
+
+        card.addEventListener("click", () => {
+            if (registrandoFactura) return;
+            facturaProductoBusqueda.value = prod.CodigoProducto;
+            facturaCantidad.value = "1";
+            agregarProducto();
+            renderizarCatalogoPOS();
+        });
+
+        posCatalogoGrid.appendChild(card);
+    });
+}
+
+facturaProductoBusqueda?.addEventListener("input", renderizarCatalogoPOS);
+
+document.addEventListener("click", function(event) {
+    if (event.target.closest("#detalleFacturaBody .quitar-linea-factura") ||
+        event.target.closest("#detalleFacturaBody input")) {
+        window.setTimeout(renderizarCatalogoPOS, 0);
     }
 });
 

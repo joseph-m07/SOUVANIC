@@ -273,80 +273,93 @@
 
             </section>
 
-            <!-- PASO 2: PRODUCTOS Y TOTALES -->
+            <!-- PASO 2: PRODUCTOS Y TOTALES (POS SPLIT) -->
 
             <section class="factura-formulario" id="wizardPaso2" data-wizard-paso="2" hidden>
 
-                <h2>Paso 2 · Productos y totales</h2>
+                <h2>Paso 2 · Productos y carrito</h2>
 
-                <h3>
-                    <i class="bi bi-box-seam" aria-hidden="true"></i>
-                    Productos
-                </h3>
+                <div class="pos-split-grid">
 
-                <div class="factura-campos">
+                    <!-- IZQUIERDA: CATÁLOGO DE PRODUCTOS -->
+                    <div class="pos-catalogo-panel">
+                        <h3>
+                            <i class="bi bi-grid" aria-hidden="true"></i>
+                            Productos
+                        </h3>
 
-                    <div class="campo-formulario campo-crece buscador-producto-contenedor">
-                        <label for="facturaProductoBusqueda">
-                            <i class="bi bi-search" aria-hidden="true"></i>
-                            Buscar producto por nombre o código
-                        </label>
-                        <div class="buscador-producto-input-wrap">
-                            <i class="bi bi-search icono-buscador-producto" aria-hidden="true"></i>
-                            <input
-                                type="text"
-                                id="facturaProductoBusqueda"
-                                placeholder="Escribí el nombre o código (ej. Hamaca, P001)..."
-                                autocomplete="off"
-                                role="combobox"
-                                aria-autocomplete="list"
-                                aria-expanded="false"
-                                aria-controls="menuDesplegableProductos"
-                            >
+                        <div class="factura-campos">
+
+                            <div class="campo-formulario campo-crece buscador-producto-contenedor">
+                                <label for="facturaProductoBusqueda">
+                                    <i class="bi bi-search" aria-hidden="true"></i>
+                                    Buscar producto
+                                </label>
+                                <div class="buscador-producto-input-wrap">
+                                    <i class="bi bi-search icono-buscador-producto" aria-hidden="true"></i>
+                                    <input
+                                        type="text"
+                                        id="facturaProductoBusqueda"
+                                        placeholder="Nombre o código (ej. Taza, SOUV-001)..."
+                                        autocomplete="off"
+                                        role="combobox"
+                                        aria-autocomplete="list"
+                                        aria-expanded="false"
+                                        aria-controls="menuDesplegableProductos"
+                                    >
+                                    <button
+                                        type="button"
+                                        id="btnLimpiarBusquedaProducto"
+                                        class="btn-limpiar-busqueda"
+                                        title="Limpiar búsqueda"
+                                        aria-label="Limpiar búsqueda"
+                                        hidden
+                                    >
+                                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <div id="menuDesplegableProductos" class="menu-desplegable-productos" role="listbox" hidden></div>
+                                <datalist id="listaProductosFactura" hidden></datalist>
+                            </div>
+
+                            <div class="campo-formulario campo-cantidad">
+                                <label for="facturaCantidad">Cant.</label>
+                                <input
+                                    type="number"
+                                    id="facturaCantidad"
+                                    min="1"
+                                    step="1"
+                                    value="1"
+                                >
+                            </div>
+
                             <button
                                 type="button"
-                                id="btnLimpiarBusquedaProducto"
-                                class="btn-limpiar-busqueda"
-                                title="Limpiar búsqueda"
-                                aria-label="Limpiar búsqueda"
-                                hidden
+                                id="agregarProductoFactura"
+                                class="btn-primario btn-auto"
+                                title="Agregar producto"
+                                aria-label="Agregar producto"
                             >
-                                <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i>
                             </button>
+
                         </div>
-                        <div id="menuDesplegableProductos" class="menu-desplegable-productos" role="listbox" hidden></div>
-                        <datalist id="listaProductosFactura" hidden></datalist>
+
+                        <div id="infoProductoFactura" class="factura-producto-info" hidden></div>
+
+                        <div class="pos-categoria-filtros" id="posCategoriaFiltros" role="group" aria-label="Filtrar por categoría"></div>
+
+                        <div class="pos-productos-grid" id="posCatalogoGrid" aria-live="polite"></div>
                     </div>
 
-                    <div class="campo-formulario campo-cantidad">
-                        <label for="facturaCantidad">Cantidad</label>
-                        <input
-                            type="number"
-                            id="facturaCantidad"
-                            min="1"
-                            step="1"
-                            value="1"
-                        >
-                    </div>
+                    <!-- DERECHA: CARRITO DE VENTA -->
+                    <div class="pos-carrito-panel">
+                        <div class="factura-detalle-bloque" aria-labelledby="tituloDetalleFactura">
 
-                    <button
-                        type="button"
-                        id="agregarProductoFactura"
-                        class="btn-primario btn-auto"
-                    >
-                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                        Agregar
-                    </button>
-
-                </div>
-
-                <div id="infoProductoFactura" class="factura-producto-info" hidden></div>
-
-            <!-- DETALLE Y TOTALES -->
-
-            <div class="factura-detalle-bloque" aria-labelledby="tituloDetalleFactura">
-
-                <h2 id="tituloDetalleFactura">Detalle de la factura</h2>
+                            <h3 id="tituloDetalleFactura">
+                                <i class="bi bi-cart3" aria-hidden="true"></i>
+                                Carrito de venta
+                            </h3>
 
                 <div class="tabla-contenedor-responsiva">
                     <table class="tabla-detalle-factura">
@@ -428,6 +441,9 @@
                 </div>
 
                 </div>
+
+                                    </div> <!-- /.pos-carrito-panel -->
+                </div> <!-- /.pos-split-grid -->
 
                 <div class="wizard-navegacion">
                     <button type="button" class="btn-secundario" data-wizard-prev="1">
