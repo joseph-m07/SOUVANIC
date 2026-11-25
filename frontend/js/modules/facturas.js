@@ -94,6 +94,9 @@ const paginacionFacturas = document.getElementById("paginacionFacturas");
 const modalDetalleFactura = document.getElementById("modalDetalleFactura");
 const cerrarDetalleFactura = document.getElementById("cerrarDetalleFactura");
 const imprimirFactura = document.getElementById("imprimirFactura");
+const imprimirVoucher = document.getElementById("imprimirVoucher");
+const alternarVistaVoucher = document.getElementById("alternarVistaVoucher");
+const voucherFacturaContenedor = document.getElementById("voucherFacturaContenedor");
 
 const numeroFacturaDetalle = document.getElementById("numeroFacturaDetalle");
 const estadoDetalleFactura = document.getElementById("estadoDetalleFactura");
@@ -2516,6 +2519,13 @@ async function abrirDetalleFactura(idFactura) {
         metodoDetalleFactura.textContent = metodoPagoDetalle(pagos);
         pagadoDetalleFactura.textContent = formatearMoneda(pagado);
         saldoDetalleFactura.textContent = formatearMoneda(saldo > 0 ? saldo : 0);
+        renderizarVoucherFactura(
+            factura,
+            Array.isArray(datos.detalle) ? datos.detalle : [],
+            pagos,
+            pagado,
+            saldo
+        );
 
         if (esFacturaAnulada(factura)) {
 
@@ -2609,6 +2619,134 @@ document.addEventListener("keydown", function(event) {
     if (event.key === "Escape" && !modalDetalleFactura.hidden) {
         cerrarModalDetalle();
     }
+});
+
+function renderizarVoucherFactura(factura, detalle, pagos, totalPagado, saldo) {
+    if (!voucherFacturaContenedor) return;
+
+    document.getElementById("voucherNumero").textContent = `#${factura.IdFactura}`;
+    document.getElementById("voucherFecha").textContent = formatearFechaHora(factura.Fecha);
+    document.getElementById("voucherCliente").textContent = factura.Cliente || "Consumidor Final";
+    document.getElementById("voucherResponsable").textContent = factura.Responsable || "Sistema";
+
+    const anuladaEl = document.getElementById("voucherEstadoAnulada");
+    if (anuladaEl) {
+        anuladaEl.hidden = !esFacturaAnulada(factura);
+    }
+
+    const voucherItems = document.getElementById("voucherItems");
+    voucherItems.innerHTML = "";
+    detalle.forEach(item => {
+        const fila = document.createElement("div");
+        fila.className = "voucher-item-fila";
+
+        const linea1 = document.createElement("div");
+        linea1.className = "voucher-item-principal";
+
+        const nombre = document.createElement("span");
+        nombre.textContent = item.Producto || item.CodigoProducto;
+
+        const subtotal = document.createElement("strong");
+        subtotal.textContent = `C$ ${formatearMoneda(item.Subtotal)}`;
+
+        linea1.append(nombre, subtotal);
+
+        const linea2 = document.createElement("div");
+        linea2.className = "voucher-item-detalle";
+        const desc = Number(item.DescuentoAplicado || 0);
+        linea2.textContent = `${item.Cantidad} x C$ ${formatearMoneda(item.PrecioUnitario)}` +
+            (desc > 0 ? ` (-C$ ${formatearMoneda(desc)})` : "");
+
+        fila.append(linea1, linea2);
+        voucherItems.appendChild(fila);
+    });
+
+    const voucherTotales = document.getElementById("voucherTotales");
+    voucherTotales.innerHTML = "";
+
+    const agregarLineaTotal = (etiqueta, valor, esFinal = false) => {
+        const div = document.createElement("div");
+        if (esFinal) div.className = "voucher-total-final";
+        const s1 = document.createElement("span");
+        s1.textContent = etiqueta;
+        const s2 = document.createElement("span");
+        s2.textContent = valor;
+        div.append(s1, s2);
+        voucherTotales.appendChild(div);
+    };
+
+    agregarLineaTotal("Subtotal:", `C$ ${formatearMoneda(factura.Subtotal ?? factura.Total)}`);
+    if (Number(factura.Descuento || 0) > 0) {
+        agregarLineaTotal("Descuento:", `-C$ ${formatearMoneda(factura.Descuento)}`);
+    }
+    if (Number(factura.Impuesto || 0) > 0) {
+        agregarLineaTotal("Impuesto:", `C$ ${formatearMoneda(factura.Impuesto)}`);
+    }
+    agregarLineaTotal("TOTAL:", `C$ ${formatearMoneda(factura.Total)}`, true);
+
+    const voucherPagos = document.getElementById("voucherPagos");
+    voucherPagos.innerHTML = "";
+
+    const pagosActivos = pagos.filter(p => p.Estado !== "Anulado");
+    let vueltoTotal = 0;
+    pagosActivos.forEach(p => {
+        vueltoTotal += Number(p.Vuelto || 0);
+        const div = document.createElement("div");
+        const s1 = document.createElement("span");
+        s1.textContent = `${p.Metodo}${p.Banco ? ` (${p.Banco})` : ""}:`;
+        const s2 = document.createElement("span");
+        s2.textContent = `C$ ${formatearMoneda(p.Monto)}`;
+        div.append(s1, s2);
+        voucherPagos.appendChild(div);
+    });
+
+    const divPagado = document.createElement("div");
+    divPagado.innerHTML = `<span>Pagado:</span><strong>C$ ${formatearMoneda(totalPagado)}</strong>`;
+    voucherPagos.appendChild(divPagado);
+
+    if (vueltoTotal > 0.009) {
+        const divVuelto = document.createElement("div");
+        divVuelto.innerHTML = `<span>Vuelto:</span><span>C$ ${formatearMoneda(vueltoTotal)}</span>`;
+        voucherPagos.appendChild(divVuelto);
+    }
+
+    if (saldo > 0.009) {
+        const divSaldo = document.createElement("div");
+        divSaldo.innerHTML = `<span>Saldo pendiente:</span><strong>C$ ${formatearMoneda(saldo)}</strong>`;
+        voucherPagos.appendChild(divSaldo);
+    }
+
+    // Reiniciar vista previa al abrir modal
+    voucherFacturaContenedor.hidden = true;
+    if (alternarVistaVoucher) {
+        alternarVistaVoucher.innerHTML = '<i class="bi bi-receipt"></i> Vista Voucher (80mm)';
+    }
+}
+
+alternarVistaVoucher?.addEventListener("click", function() {
+    if (!voucherFacturaContenedor) return;
+    const mostrarVoucher = voucherFacturaContenedor.hidden;
+    voucherFacturaContenedor.hidden = !mostrarVoucher;
+    alternarVistaVoucher.innerHTML = mostrarVoucher
+        ? '<i class="bi bi-file-earmark-text"></i> Ocultar Voucher'
+        : '<i class="bi bi-receipt"></i> Vista Voucher (80mm)';
+});
+
+imprimirVoucher?.addEventListener("click", function() {
+    if (modalDetalleFactura.hidden || !voucherFacturaContenedor) return;
+    const estabaOculto = voucherFacturaContenedor.hidden;
+    voucherFacturaContenedor.hidden = false;
+    document.body.classList.add("imprimiendo-voucher");
+
+    const restaurar = () => {
+        document.body.classList.remove("imprimiendo-voucher");
+        voucherFacturaContenedor.hidden = estabaOculto;
+        window.removeEventListener("afterprint", restaurar);
+    };
+
+    window.addEventListener("afterprint", restaurar);
+    window.print();
+    window.setTimeout(restaurar, 1000);
 });
 
 imprimirFactura.addEventListener("click", function() {

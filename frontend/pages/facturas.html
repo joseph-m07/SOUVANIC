@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -851,8 +851,50 @@
         </div>
 
 
+        <!-- VISTA VOUCHER 80MM -->
+        <div id="voucherFacturaContenedor" class="voucher-80mm" hidden>
+            <div class="voucher-encabezado">
+                <img src="../assets/Logo.png" alt="SOUVANIC" class="voucher-logo">
+                <h3>NICARAGUA SOUVENIR</h3>
+                <p>SOUVANIC · Comprobante de Venta</p>
+                <p class="voucher-estado-anulada" id="voucherEstadoAnulada" hidden>*** FACTURA ANULADA ***</p>
+            </div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-meta">
+                <div><span>Factura:</span><strong id="voucherNumero">-</strong></div>
+                <div><span>Fecha:</span><span id="voucherFecha">-</span></div>
+                <div><span>Cliente:</span><span id="voucherCliente">-</span></div>
+                <div><span>Cajero:</span><span id="voucherResponsable">-</span></div>
+            </div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-items-header">
+                <span>DESCRIPCIÓN</span>
+                <span>TOTAL</span>
+            </div>
+            <div class="voucher-items" id="voucherItems"></div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-totales" id="voucherTotales"></div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-pagos" id="voucherPagos"></div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-pie">
+                <p>¡Gracias por su compra!</p>
+                <p>Registrado en SOUVANIC</p>
+            </div>
+        </div>
+
         <!-- BOTONES INFERIORES -->
         <div class="acciones-modal-factura">
+
+            <button type="button" id="alternarVistaVoucher" class="btn-secundario">
+                <i class="bi bi-receipt"></i>
+                Vista Voucher (80mm)
+            </button>
+
+            <button type="button" id="imprimirVoucher" class="btn-secundario">
+                <i class="bi bi-printer"></i>
+                Imprimir voucher
+            </button>
 
             <button type="button" id="imprimirFactura">
                 <i class="bi bi-printer"></i>

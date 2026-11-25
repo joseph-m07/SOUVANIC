@@ -7699,3 +7699,126 @@ tr.socio-fila:hover .socio-chevron-btn {
     border-color: #ef4444;
     color: #991b1b;
 }
+
+/* ==========================================
+   VOUCHER TÉRMICO (80MM) DE FACTURA
+   ========================================== */
+.voucher-80mm {
+    width: 302px;
+    max-width: 100%;
+    margin: 12px auto;
+    padding: 16px 14px;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px dashed #94a3b8;
+    border-radius: 6px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.voucher-encabezado {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.voucher-logo {
+    width: 44px;
+    height: auto;
+    margin-bottom: 4px;
+}
+
+.voucher-encabezado h3 {
+    margin: 0;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.voucher-encabezado p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    color: #475569;
+}
+
+.voucher-estado-anulada {
+    margin-top: 6px !important;
+    font-weight: 700;
+    color: #b91c1c !important;
+}
+
+.voucher-linea {
+    border-top: 1px dashed #64748b;
+    margin: 8px 0;
+}
+
+.voucher-meta div,
+.voucher-totales div,
+.voucher-pagos div {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.voucher-items-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.voucher-item-fila {
+    margin-bottom: 5px;
+}
+
+.voucher-item-principal {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.voucher-item-detalle {
+    font-size: 11px;
+    color: #475569;
+}
+
+.voucher-total-final {
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.voucher-pie {
+    text-align: center;
+    font-size: 11px;
+    color: #475569;
+    margin-top: 6px;
+}
+
+.voucher-pie p {
+    margin: 2px 0;
+}
+
+@media print {
+    body.imprimiendo-voucher * {
+        visibility: hidden !important;
+    }
+
+    body.imprimiendo-voucher #voucherFacturaContenedor,
+    body.imprimiendo-voucher #voucherFacturaContenedor * {
+        visibility: visible !important;
+    }
+
+    body.imprimiendo-voucher #voucherFacturaContenedor {
+        display: block !important;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 76mm;
+        margin: 0;
+        padding: 4mm;
+        border: none;
+        box-shadow: none;
+    }
+}
