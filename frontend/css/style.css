@@ -7993,3 +7993,142 @@ tr.socio-fila:hover .socio-chevron-btn {
     padding-top: 14px;
     border-top: 1px solid #e2e8f0;
 }
+
+/* ==========================================
+   POS SPLIT LAYOUT (PRODUCTOS IZQUIERDA / CARRITO DERECHA)
+   ========================================== */
+.pos-split-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .pos-split-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pos-catalogo-panel,
+.pos-carrito-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.pos-catalogo-panel h3,
+.pos-carrito-panel h3 {
+    margin-top: 0;
+}
+
+.pos-categoria-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 12px;
+}
+
+.pos-productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    max-height: 460px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.pos-producto-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 10px 11px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pos-producto-card:hover:not(:disabled) {
+    border-color: #1a4b77;
+    box-shadow: 0 4px 12px rgba(26, 75, 119, 0.12);
+    transform: translateY(-1px);
+}
+
+.pos-producto-card:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: #f1f5f9;
+}
+
+.pos-producto-card.en-carrito {
+    border-color: #1a4b77;
+    background: #eff6ff;
+}
+
+.pos-card-categoria {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.pos-card-nombre {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.pos-card-codigo {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.pos-card-pie {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.pos-card-precio {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1a4b77;
+}
+
+.pos-card-stock {
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: #166534;
+}
+
+.pos-card-stock.agotado {
+    color: #b91c1c;
+}
+
+.pos-card-badge-carrito {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #1a4b77;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
