@@ -318,6 +318,10 @@ function crearBotonAccionProducto(clase, titulo, icono, texto) {
 function crearFilaProducto(producto) {
 
     const fila = document.createElement("tr");
+    fila.className = "socio-fila";
+    fila.tabIndex = 0;
+    fila.setAttribute("role", "button");
+    fila.setAttribute("aria-label", `Ver opciones de ${producto.Nombre || producto.CodigoProducto}`);
     fila.dataset.codigo = producto.CodigoProducto ?? "";
 
     const celdaCodigo = document.createElement("td");
@@ -362,42 +366,15 @@ function crearFilaProducto(producto) {
     celdaEstado.appendChild(estado);
 
     const acciones = document.createElement("td");
-    acciones.className = "acciones-producto";
+    acciones.className = "col-chevron";
 
-    const ver = crearBotonAccionProducto(
-        "btn-ver-producto",
-        "Ver detalle del producto",
-        "bi-eye",
-        "Ver"
-    );
+    const btnChevron = document.createElement("button");
+    btnChevron.type = "button";
+    btnChevron.className = "socio-chevron-btn";
+    btnChevron.setAttribute("aria-label", `Opciones de ${producto.Nombre || producto.CodigoProducto}`);
+    btnChevron.innerHTML = '<i class="bi bi-chevron-right" aria-hidden="true"></i>';
 
-    acciones.appendChild(ver);
-
-    if (esAdministrador()) {
-
-        const editar = crearBotonAccionProducto(
-            "edit-btn",
-            "Editar producto",
-            "bi-pencil",
-            "Editar"
-        );
-
-        const alternar = crearBotonAccionProducto(
-            "btn-alternar-producto",
-            activo ? "Desactivar producto" : "Activar producto",
-            activo ? "bi-toggle-on" : "bi-toggle-off",
-            activo ? "Desactivar" : "Activar"
-        );
-
-        const eliminar = crearBotonAccionProducto(
-            "delete-btn",
-            "Eliminar producto",
-            "bi-trash3",
-            "Eliminar"
-        );
-
-        acciones.append(editar, alternar, eliminar);
-    }
+    acciones.appendChild(btnChevron);
 
     fila.append(
         celdaCodigo,
@@ -823,141 +800,98 @@ productForm.addEventListener("submit", async function(event) {
 // EDITAR Y ELIMINAR PRODUCTOS
 // ==========================================
 
-productsBody.addEventListener("click", async function(event) {
-
-    const boton = event.target.closest("button");
-
-    if (!boton) {
-        return;
-    }
-
-    const fila = boton.closest("tr");
-
-    if (!fila || !fila.dataset.codigo) {
-        return;
-    }
-
+productsBody.addEventListener("click", function(event) {
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila) return;
     const codigo = fila.dataset.codigo;
-    const producto = productosCatalogo.find(item =>
-        item.CodigoProducto === codigo
-    );
-
-    if (!producto) {
-        return;
-    }
-
-    // ======================================
-    // VER PRODUCTO
-    // ======================================
-
-    if (boton.classList.contains("btn-ver-producto")) {
+    const producto = productosCatalogo.find(item => item.CodigoProducto === codigo);
+    if (producto) {
         abrirDetalleProducto(producto);
-        return;
     }
+});
 
-    // ======================================
-    // ACTIVAR / DESACTIVAR PRODUCTO
-    // ======================================
-
-    if (boton.classList.contains("btn-alternar-producto")) {
-        await alternarEstadoProducto(producto);
-        return;
+productsBody.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila) return;
+    event.preventDefault();
+    const codigo = fila.dataset.codigo;
+    const producto = productosCatalogo.find(item => item.CodigoProducto === codigo);
+    if (producto) {
+        abrirDetalleProducto(producto);
     }
+});
 
-    // ======================================
-    // ELIMINAR PRODUCTO
-    // ======================================
+let productoSeleccionadoOpciones = null;
 
-    if (boton.classList.contains("delete-btn")) {
+function abrirFormularioEdicionProducto(producto) {
+    editingRow = productsBody.querySelector(`tr[data-codigo="${CSS.escape(producto.CodigoProducto)}"]`);
+    originalProductCode = producto.CodigoProducto;
 
-        const confirmar = await SouvanicUI.confirmar({
-            titulo: "Eliminar producto",
-            mensaje: `¿Querés eliminar el producto ${codigo}?`,
-            detalle: "Esta acción elimina el producto del catálogo de SQL Server y no se puede deshacer.",
-            confirmar: "Eliminar producto",
-            cancelar: "Cancelar",
-            peligro: true,
-            icono: "bi-trash3-fill"
-        });
+    document.getElementById("codigo").value = producto.CodigoProducto ?? "";
+    document.getElementById("nombreProducto").value = producto.Nombre ?? "";
+    descripcionProducto.value = producto.Descripcion ?? "";
+    actualizarSelectCategorias(producto.Categoria ?? "");
+    document.getElementById("precio").value = Number(producto.Precio) || 0;
+    document.getElementById("stock").value = Number(producto.Stock) || 0;
 
-        if (!confirmar) {
-            return;
+    modal.querySelector("h2").textContent = "Editar producto";
+    modal.classList.add("active");
+}
+
+async function eliminarProductoDesdeOpciones(producto) {
+    const codigo = producto.CodigoProducto;
+    const confirmar = await SouvanicUI.confirmar({
+        titulo: "Eliminar producto",
+        mensaje: `¿Querés eliminar el producto ${codigo}?`,
+        detalle: "Esta acción elimina el producto del catálogo y no se puede deshacer.",
+        confirmar: "Eliminar producto",
+        cancelar: "Cancelar",
+        peligro: true,
+        icono: "bi-trash3-fill"
+    });
+
+    if (!confirmar) return;
+
+    try {
+        const respuesta = await fetchAutenticado(
+            `/productos/${encodeURIComponent(codigo)}`,
+            { method: "DELETE" }
+        );
+        const datos = await respuesta.json();
+        if (!respuesta.ok) {
+            throw new Error(datos.mensaje || "No se pudo eliminar el producto.");
         }
 
-        boton.disabled = true;
-
-        try {
-
-            const respuesta = await fetchAutenticado(
-                `/productos/${encodeURIComponent(codigo)}`,
-                {
-                    method: "DELETE"
-                }
-            );
-
-            const datos = await respuesta.json();
-
-            if (!respuesta.ok) {
-                throw new Error(
-                    datos.mensaje ||
-                    "No se pudo eliminar el producto."
-                );
-            }
-
-            SouvanicUI.notificar(
-                "Producto eliminado correctamente de SQL Server.",
-                "success"
-            );
-
-            await loadProductsFromSQL();
-
-        } catch (error) {
-
-            console.error("Error al eliminar producto:", error);
-
-            if (sessionStorage.getItem("token")) {
-                SouvanicUI.notificar(
-                    "Error al eliminar el producto: " + error.message,
-                    "error"
-                );
-            }
-
-        } finally {
-
-            boton.disabled = false;
+        SouvanicUI.notificar("Producto eliminado correctamente.", "success");
+        await loadProductsFromSQL();
+    } catch (error) {
+        console.error("Error al eliminar producto:", error);
+        if (sessionStorage.getItem("token")) {
+            SouvanicUI.notificar("Error al eliminar el producto: " + error.message, "error");
         }
     }
+}
 
+document.getElementById("btnProductoOpcionEditar")?.addEventListener("click", () => {
+    if (!productoSeleccionadoOpciones) return;
+    const prod = productoSeleccionadoOpciones;
+    cerrarDetalleProducto();
+    abrirFormularioEdicionProducto(prod);
+});
 
-    // ======================================
-    // EDITAR PRODUCTO
-    // ======================================
+document.getElementById("btnProductoOpcionAlternar")?.addEventListener("click", async () => {
+    if (!productoSeleccionadoOpciones) return;
+    const prod = productoSeleccionadoOpciones;
+    cerrarDetalleProducto();
+    await alternarEstadoProducto(prod);
+});
 
-    if (boton.classList.contains("edit-btn")) {
-
-        editingRow = fila;
-        originalProductCode = producto.CodigoProducto;
-
-        document.getElementById("codigo").value =
-            producto.CodigoProducto ?? "";
-
-        document.getElementById("nombreProducto").value =
-            producto.Nombre ?? "";
-
-        descripcionProducto.value = producto.Descripcion ?? "";
-
-        actualizarSelectCategorias(producto.Categoria ?? "");
-
-        document.getElementById("precio").value =
-            Number(producto.Precio) || 0;
-
-        document.getElementById("stock").value =
-            Number(producto.Stock) || 0;
-
-        modal.querySelector("h2").textContent = "Editar producto";
-
-        modal.classList.add("active");
-    }
+document.getElementById("btnProductoOpcionEliminar")?.addEventListener("click", async () => {
+    if (!productoSeleccionadoOpciones) return;
+    const prod = productoSeleccionadoOpciones;
+    cerrarDetalleProducto();
+    await eliminarProductoDesdeOpciones(prod);
 });
 
 
@@ -983,6 +917,19 @@ function crearCampoDetalleProducto(etiqueta, valor) {
 function abrirDetalleProducto(producto) {
 
     if (!modalDetalleProducto || !detalleProductoContenido) return;
+
+    productoSeleccionadoOpciones = producto;
+    const activo = producto.Activo !== false;
+
+    const accionesContenedor = document.getElementById("productoOpcionesAcciones");
+    if (accionesContenedor) {
+        accionesContenedor.style.display = esAdministrador() ? "flex" : "none";
+    }
+
+    const textoAlternar = document.getElementById("textoProductoOpcionAlternar");
+    if (textoAlternar) {
+        textoAlternar.textContent = activo ? "Desactivar producto" : "Activar producto";
+    }
 
     document.getElementById("detalleProductoTitulo").textContent =
         producto.Nombre || "Detalle del producto";

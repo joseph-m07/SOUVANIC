@@ -716,35 +716,19 @@ function crearFilaStock(producto) {
     celdaEstado.appendChild(estadoTexto);
 
     const celdaAcciones = document.createElement("td");
+    celdaAcciones.className = "col-chevron";
 
-    if (esAdministrador()) {
+    const btnChevron = document.createElement("button");
+    btnChevron.type = "button";
+    btnChevron.className = "socio-chevron-btn";
+    btnChevron.setAttribute("aria-label", `Opciones de ${producto.Nombre || codigo}`);
+    btnChevron.innerHTML = '<i class="bi bi-chevron-right" aria-hidden="true"></i>';
+    celdaAcciones.appendChild(btnChevron);
 
-        const contenedor = document.createElement("div");
-
-        contenedor.className = "acciones-producto";
-
-        contenedor.append(
-            crearBotonAccionInventario(
-                "movimiento",
-                codigo,
-                "bi bi-arrow-left-right",
-                "Movimiento"
-            ),
-            crearBotonAccionInventario(
-                "minimo",
-                codigo,
-                "bi bi-sliders",
-                "Mínimo"
-            )
-        );
-
-        celdaAcciones.appendChild(contenedor);
-
-    } else {
-
-        celdaAcciones.className = "texto-secundario";
-        celdaAcciones.textContent = "—";
-    }
+    fila.className = "socio-fila";
+    fila.tabIndex = 0;
+    fila.setAttribute("role", "button");
+    fila._productoInventario = producto;
 
     fila.append(
         celdaCodigo,
@@ -1043,24 +1027,23 @@ function crearFilaHistorial(movimiento) {
     fila.appendChild(crearCeldaFactura(movimiento));
 
     const celdaComprobante = document.createElement("td");
+    celdaComprobante.className = "col-chevron";
     const botonComprobante = document.createElement("button");
 
     botonComprobante.type = "button";
-    botonComprobante.className = "btn-accion-mini btn-comprobante";
+    botonComprobante.className = "socio-chevron-btn btn-comprobante";
     botonComprobante.dataset.movimiento = String(movimiento.IdMovimiento);
     botonComprobante.setAttribute(
         "aria-label",
         "Ver comprobante del movimiento"
     );
-
-    const icono = document.createElement("i");
-
-    icono.className = "bi bi-receipt";
-    icono.setAttribute("aria-hidden", "true");
-
-    botonComprobante.append(icono, document.createTextNode(" Ver"));
+    botonComprobante.innerHTML = '<i class="bi bi-chevron-right" aria-hidden="true"></i>';
 
     celdaComprobante.appendChild(botonComprobante);
+    fila.className = "socio-fila";
+    fila.tabIndex = 0;
+    fila.setAttribute("role", "button");
+    fila.dataset.movimiento = String(movimiento.IdMovimiento);
     fila.appendChild(celdaComprobante);
 
     return fila;
@@ -2040,25 +2023,65 @@ formProductoInventario.addEventListener("submit", async function(event) {
 // ACCIONES DE LA TABLA DE STOCK
 // ==========================================
 
+let productoInventarioSeleccionado = null;
+const inventarioOpcionesModal = document.getElementById("inventarioOpcionesModal");
+const cerrarInventarioOpcionesBtn = document.getElementById("cerrarInventarioOpciones");
+
+function cerrarModalOpcionesInventario() {
+    if (inventarioOpcionesModal) {
+        inventarioOpcionesModal.classList.remove("active");
+    }
+}
+
+function abrirModalOpcionesInventario(producto) {
+    if (!inventarioOpcionesModal) return;
+    productoInventarioSeleccionado = producto;
+
+    document.getElementById("inventarioOpcionesNombre").textContent = producto.Nombre || "Producto";
+    document.getElementById("inventarioOpcionesCodigo").textContent = `Código: ${producto.CodigoProducto || "-"}`;
+    document.getElementById("inventarioOpcionesCategoria").textContent = producto.Categoria || "Sin categoría";
+    document.getElementById("inventarioOpcionesStock").textContent = `${numeroSeguro(producto.Stock)} unidades`;
+    document.getElementById("inventarioOpcionesMinimo").textContent = `${stockMinimoDe(producto)} unidades`;
+
+    const accionesCont = document.getElementById("inventarioOpcionesAcciones");
+    if (accionesCont) {
+        accionesCont.style.display = esAdministrador() ? "flex" : "none";
+    }
+
+    inventarioOpcionesModal.classList.add("active");
+}
+
+cerrarInventarioOpcionesBtn?.addEventListener("click", cerrarModalOpcionesInventario);
+inventarioOpcionesModal?.addEventListener("click", e => {
+    if (e.target === inventarioOpcionesModal) cerrarModalOpcionesInventario();
+});
+
+document.getElementById("btnInventarioOpcionMovimiento")?.addEventListener("click", () => {
+    if (!productoInventarioSeleccionado || !esAdministrador()) return;
+    const codigo = productoInventarioSeleccionado.CodigoProducto;
+    cerrarModalOpcionesInventario();
+    abrirModalMovimiento(codigo);
+});
+
+document.getElementById("btnInventarioOpcionMinimo")?.addEventListener("click", () => {
+    if (!productoInventarioSeleccionado || !esAdministrador()) return;
+    const codigo = productoInventarioSeleccionado.CodigoProducto;
+    cerrarModalOpcionesInventario();
+    abrirModalStockMinimo(codigo);
+});
+
 inventarioStockBody.addEventListener("click", function(event) {
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila || !fila._productoInventario) return;
+    abrirModalOpcionesInventario(fila._productoInventario);
+});
 
-    const boton = event.target.closest("[data-accion]");
-
-    if (!boton || !esAdministrador()) {
-        return;
-    }
-
-    const codigo = boton.dataset.codigo;
-
-    if (!codigo) {
-        return;
-    }
-
-    if (boton.dataset.accion === "movimiento") {
-        abrirModalMovimiento(codigo);
-    } else if (boton.dataset.accion === "minimo") {
-        abrirModalStockMinimo(codigo);
-    }
+inventarioStockBody.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila || !fila._productoInventario) return;
+    event.preventDefault();
+    abrirModalOpcionesInventario(fila._productoInventario);
 });
 
 buscarInventario.addEventListener("input", function() {
@@ -2526,14 +2549,17 @@ function cerrarComprobanteMovimiento() {
 }
 
 historialMovimientosBody.addEventListener("click", function(event) {
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila || !fila.dataset.movimiento) return;
+    abrirComprobanteMovimiento(fila.dataset.movimiento);
+});
 
-    const boton = event.target.closest(".btn-comprobante");
-
-    if (!boton) {
-        return;
-    }
-
-    abrirComprobanteMovimiento(boton.dataset.movimiento);
+historialMovimientosBody.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila || !fila.dataset.movimiento) return;
+    event.preventDefault();
+    abrirComprobanteMovimiento(fila.dataset.movimiento);
 });
 
 modalComprobanteMovimiento.addEventListener("click", function(event) {
