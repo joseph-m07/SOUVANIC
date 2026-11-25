@@ -52,7 +52,7 @@
             <i class="bi bi-file-earmark-plus"></i> Nueva Factura
         </a>
 
-        <a href="facturas.html#historial">
+        <a href="historial-facturas.html">
             <i class="bi bi-receipt"></i> Facturas
         </a>
 
@@ -103,14 +103,10 @@
                 </div>
 
                 <div class="module-header-acciones">
-                    <button type="button" class="btn-secundario" id="btnVerListadoFacturas">
-                        <i class="bi bi-list-ul" aria-hidden="true"></i>
-                        Listado
-                    </button>
-                    <button type="button" class="btn-primario" id="btnNuevaFacturaWizard">
-                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                        Nueva factura
-                    </button>
+                    <a class="btn-secundario" href="historial-facturas.html">
+                        <i class="bi bi-receipt" aria-hidden="true"></i>
+                        Ver historial
+                    </a>
                 </div>
 
             </div>
@@ -625,125 +621,7 @@
             </div> <!-- /#vistaWizardFactura -->
 
 
-            <!-- HISTORIAL DE FACTURAS -->
-
-            <section class="historial-facturas" id="historial" aria-labelledby="tituloHistorialFacturas">
-
-                <div class="historial-cabecera">
-
-                    <div>
-                        <h2 id="tituloHistorialFacturas">Historial de facturas</h2>
-                        <p class="module-contador" id="contadorFacturas" aria-live="polite">
-                            Cargando facturas...
-                        </p>
-                    </div>
-
-                    <button type="button" id="btnExportarFacturas" class="btn-secundario">
-                        <i class="bi bi-file-earmark-excel" aria-hidden="true"></i>
-                        Exportar XLSX
-                    </button>
-
-                </div>
-
-                <div class="historial-filtros">
-
-                    <div class="campo-filtro campo-busqueda">
-                        <label for="filtroFacturaBuscar">Buscar</label>
-                        <input
-                            type="search"
-                            id="filtroFacturaBuscar"
-                            placeholder="N.º de factura o cliente"
-                            autocomplete="off"
-                        >
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaDesde">Desde</label>
-                        <input type="date" id="filtroFacturaDesde">
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaHasta">Hasta</label>
-                        <input type="date" id="filtroFacturaHasta">
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaEstado">Estado</label>
-                        <select id="filtroFacturaEstado">
-                            <option value="">Todos</option>
-                            <option value="Registrada">Registrada</option>
-                            <option value="Pagada">Pagada</option>
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="Anulada">Anulada</option>
-                        </select>
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaMetodo">Método de pago</label>
-                        <select id="filtroFacturaMetodo">
-                            <option value="">Todos</option>
-                            <option value="Efectivo">Efectivo</option>
-                            <option value="Tarjeta">Tarjeta</option>
-                            <option value="Transferencia">Transferencia</option>
-                        </select>
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaResponsable">Responsable</label>
-                        <select id="filtroFacturaResponsable">
-                            <option value="">Todos</option>
-                        </select>
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaOrden">Orden</label>
-                        <select id="filtroFacturaOrden">
-                            <option value="recientes">Más recientes</option>
-                            <option value="antiguas">Más antiguas</option>
-                            <option value="total-desc">Total mayor</option>
-                            <option value="total-asc">Total menor</option>
-                        </select>
-                    </div>
-
-                    <button type="button" id="btnLimpiarFiltrosFacturas" class="btn-cancelar">
-                        <i class="bi bi-funnel" aria-hidden="true"></i>
-                        Limpiar filtros
-                    </button>
-
-                </div>
-
-                <div class="tabla-contenedor-responsiva">
-                    <table class="tabla-historial-facturas tabla-socios-lista">
-                        <thead>
-                            <tr>
-                                <th>N.º Factura</th>
-                                <th>Fecha</th>
-                                <th>Cliente</th>
-                                <th>Responsable</th>
-                                <th>Total</th>
-                                <th>Estado</th>
-                                <th>Saldo</th>
-                                <th class="col-chevron" aria-label="Opciones"></th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="historialFacturasBody">
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="paginacion-facturas" id="paginacionFacturas"></div>
-
-            </section>
-
-        </div>
-
-    </main>
-
-</div>
-
-
-<!-- MODAL DE DETALLE DE FACTURA -->
+            <!-- MODAL DE DETALLE DE FACTURA -->
 
 <section
     id="modalDetalleFactura"
