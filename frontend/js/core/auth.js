@@ -32,6 +32,9 @@ async function fetchAutenticado(ruta, opciones = {}) {
 
     // SESIÓN EXPIRADA O TOKEN INVÁLIDO
     if (respuesta.status === 401) {
+        if (window.SouvanicNeurona) {
+            window.SouvanicNeurona.emitir("sesion:expirada", { ruta });
+        }
 
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("usuario");
@@ -72,6 +75,9 @@ function esAdministrador() {
  // ==========================================
 
 function cerrarSesion() {
+    if (window.SouvanicNeurona) {
+        window.SouvanicNeurona.emitir("sesion:cerrada", {});
+    }
 
     // Eliminar las credenciales de la sesión
     sessionStorage.removeItem("token");

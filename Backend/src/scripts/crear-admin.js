@@ -2,7 +2,7 @@
 const bcrypt = require("bcrypt");
 const readline = require("node:readline/promises");
 const { stdin, stdout } = require("node:process");
-const { sql, config } = require("./database");
+const { sql, config } = require("../config/database");
 
 async function crearAdministrador() {
     const rl = readline.createInterface({

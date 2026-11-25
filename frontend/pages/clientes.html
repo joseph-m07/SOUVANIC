@@ -13,13 +13,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Clientes - SOUVANIC</title>
+    <title>Socios - SOUVANIC</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
@@ -31,7 +31,7 @@
         <aside class="sidebar">
 
     <div class="sidebar-brand">
-        <img src="Logo.png" alt="Logotipo Nicaragua Souvenir">
+        <img src="../assets/Logo.png" alt="Logotipo Nicaragua Souvenir">
         <h2>SOUVANIC</h2>
     </div>
 
@@ -45,7 +45,7 @@
         </a>
 
         <a href="clientes.html" class="active">
-            <i class="bi bi-people"></i> Clientes
+            <i class="bi bi-people"></i> Socios
         </a>
 
         <a href="facturas.html">
@@ -93,33 +93,40 @@
 
             <div class="module-header">
                 <div class="module-header-info">
-                    <h1>Clientes</h1>
-                    <p>Administra los clientes de Nicaragua Souvenir</p>
+                    <h1>Socios</h1>
+                    <p>Administra clientes, proveedores y empleados de tu negocio</p>
                 </div>
             </div>
 
-            <!-- Buscador y botón agregar cliente -->
+            <!-- Buscador, filtro de clasificación y botón agregar socio -->
 
             <div class="products-tools">
 
                 <input
                     type="search"
                     id="searchClient"
-                    placeholder="Buscar cliente..."
+                    placeholder="Buscar socio por ID, nombre, teléfono..."
                 >
 
                 <button type="button" id="openClientModal">
                     <i class="bi bi-person-plus-fill"></i>
-                    Agregar cliente
+                    Agregar socio
                 </button>
 
             </div>
 
+            <div class="socio-filtros" id="socioFiltros" role="group" aria-label="Filtrar por clasificación">
+                <button type="button" class="socio-filtro-btn active" data-filtro="todos">Todos</button>
+                <button type="button" class="socio-filtro-btn" data-filtro="cliente">Clientes</button>
+                <button type="button" class="socio-filtro-btn" data-filtro="proveedor">Proveedores</button>
+                <button type="button" class="socio-filtro-btn" data-filtro="empleado">Empleados</button>
+            </div>
+
             <p class="module-contador" id="contadorClientes" aria-live="polite">
-                Cargando clientes...
+                Cargando socios...
             </p>
 
-             <!-- Tabla de clientes -->
+             <!-- Tabla de socios -->
 
             <div class="products-table">
 
@@ -131,6 +138,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre</th>
+                                <th>Clasificación</th>
                                 <th>Teléfono</th>
                                 <th>Correo</th>
                                 <th>Dirección</th>
@@ -140,10 +148,10 @@
 
                         <tbody id="clientsBody">
                             <tr class="fila-estado">
-                                <td colspan="6" class="celda-estado">
+                                <td colspan="7" class="celda-estado">
                                     <div class="estado-cargando" role="status">
                                         <i class="bi bi-arrow-repeat spin" aria-hidden="true"></i>
-                                        <span>Cargando clientes...</span>
+                                        <span>Cargando socios...</span>
                                     </div>
                                 </td>
                             </tr>
@@ -159,7 +167,7 @@
 
     </div>
 
-    <!-- Modal para agregar cliente -->
+    <!-- Modal para agregar/editar socio -->
 <div class="modal" id="clientModal">
 
     <div class="modal-content">
@@ -169,23 +177,39 @@
             &times;
         </button>
 
-        <h2>Agregar cliente</h2>
+        <h2 id="socioModalTitulo">Agregar socio</h2>
 
         <form id="clientForm">
 
-            <label for="clientId">ID del cliente</label>
+            <label for="clientId">ID / Cédula / RUC</label>
             <input
                 type="text"
                 id="clientId"
-                placeholder="Ej. C003"
+                placeholder="Ej. C003 o 001-120590-0014A"
             >
 
-            <label for="clientName">Nombre</label>
+            <label for="clientName">Nombre o Razón Social</label>
             <input
                 type="text"
                 id="clientName"
-                placeholder="Nombre completo"
+                placeholder="Nombre completo o empresa"
             >
+
+            <label>Clasificación del socio</label>
+            <div class="socio-roles-grupo">
+                <label class="socio-role-check">
+                    <input type="checkbox" id="socioEsCliente" checked>
+                    <span>Cliente</span>
+                </label>
+                <label class="socio-role-check">
+                    <input type="checkbox" id="socioEsProveedor">
+                    <span>Proveedor</span>
+                </label>
+                <label class="socio-role-check">
+                    <input type="checkbox" id="socioEsEmpleado">
+                    <span>Empleado</span>
+                </label>
+            </div>
 
             <label for="clientPhone">Teléfono</label>
             <input
@@ -198,7 +222,7 @@
             <input
                 type="email"
                 id="clientEmail"
-                placeholder="Ej. cliente@email.com (opcional)"
+                placeholder="Ej. socio@email.com (opcional)"
             >
 
             <label for="clientAddress">Dirección <span class="etiqueta-opcional">(opcional)</span></label>
@@ -227,11 +251,12 @@
 </div>
 
 <!-- JavaScript -->
-<script src="auth.js"></script>
-<script src="notificaciones.js"></script>
-<script src="sidebar.js"></script>
-<script src="ui-estados.js"></script>
-<script src="clientes.js"></script>
+<script src="../js/core/neurona.js"></script>
+    <script src="../js/core/auth.js"></script>
+<script src="../js/core/notificaciones.js"></script>
+<script src="../js/core/sidebar.js"></script>
+<script src="../js/core/ui-estados.js"></script>
+<script src="../js/modules/clientes.js"></script>
 
 </body>
 
