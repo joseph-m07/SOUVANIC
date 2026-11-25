@@ -1031,8 +1031,10 @@ function mostrarDetalleFactura() {
         const botonEliminar = document.createElement("button");
 
         botonEliminar.type = "button";
-        botonEliminar.textContent = "Quitar";
-        botonEliminar.className = "quitar-producto-btn";
+        botonEliminar.className = "quitar-producto-btn btn-icono-factura";
+        botonEliminar.title = "Quitar producto del carrito";
+        botonEliminar.setAttribute("aria-label", "Quitar producto del carrito");
+        botonEliminar.innerHTML = '<i class="bi bi-trash3" aria-hidden="true"></i>';
         botonEliminar.dataset.indice = indice;
 
         celdaAcciones.appendChild(botonEliminar);
@@ -1507,9 +1509,11 @@ function renderPagos() {
 
         const boton = document.createElement("button");
         boton.type = "button";
-        boton.className = "quitar-pago-btn";
+        boton.className = "quitar-pago-btn btn-icono-factura";
         boton.dataset.indice = indice;
-        boton.textContent = "Quitar";
+        boton.title = "Quitar pago";
+        boton.setAttribute("aria-label", "Quitar pago");
+        boton.innerHTML = '<i class="bi bi-trash3" aria-hidden="true"></i>';
 
         item.append(icono, datos, boton);
         pagosFacturaLista.appendChild(item);
@@ -3064,7 +3068,9 @@ function salirModoEdicionWizard() {
     idFacturaEditando = null;
     if (wizardModoEdicionBanner) wizardModoEdicionBanner.hidden = true;
     if (guardarFactura) {
-        guardarFactura.innerHTML = '<i class="bi bi-check2-circle" aria-hidden="true"></i> Guardar factura';
+        guardarFactura.innerHTML = '<i class="bi bi-check2-circle" aria-hidden="true"></i>';
+        guardarFactura.title = "Guardar factura";
+        guardarFactura.setAttribute("aria-label", "Guardar factura");
     }
 }
 
@@ -3139,7 +3145,9 @@ function iniciarEdicionFactura(datosCompletos) {
         wizardModoEdicionTexto.textContent = `Editando factura N.° ${fac.IdFactura}`;
     }
     if (guardarFactura) {
-        guardarFactura.innerHTML = '<i class="bi bi-check2-circle" aria-hidden="true"></i> Guardar cambios';
+        guardarFactura.innerHTML = '<i class="bi bi-check2-circle" aria-hidden="true"></i>';
+        guardarFactura.title = "Guardar cambios";
+        guardarFactura.setAttribute("aria-label", "Guardar cambios");
     }
 
     // Precargar cliente
