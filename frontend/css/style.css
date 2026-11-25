@@ -8132,3 +8132,79 @@ tr.socio-fila:hover .socio-chevron-btn {
     align-items: center;
     justify-content: center;
 }
+
+/* ==========================================
+   POS LISTA COMPACTA CON CHEVRON (>) ESTILO SOCIOS
+   ========================================== */
+.pos-lista-contenedor {
+    max-height: 360px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.pos-catalogo-lista {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pos-catalogo-lista tr.pos-lista-fila td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.84rem;
+    vertical-align: middle;
+}
+
+.pos-catalogo-lista tr.pos-lista-fila:last-child td {
+    border-bottom: none;
+}
+
+.pos-catalogo-lista tr.pos-lista-fila.en-carrito {
+    background: #eff6ff;
+}
+
+.pos-catalogo-lista tr.pos-lista-fila.agotado {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.pos-lista-nombre {
+    display: block;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.pos-lista-meta {
+    display: block;
+    font-size: 0.74rem;
+    color: #64748b;
+}
+
+.pos-lista-precio {
+    font-weight: 700;
+    color: #1a4b77;
+    white-space: nowrap;
+}
+
+.pos-lista-stock {
+    display: block;
+    font-size: 0.72rem;
+    color: #166534;
+}
+
+.pos-lista-stock.agotado {
+    color: #b91c1c;
+}
+
+.pos-lista-badge-carrito {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #1a4b77;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+}

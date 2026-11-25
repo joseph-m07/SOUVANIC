@@ -322,34 +322,17 @@
                                 <datalist id="listaProductosFactura" hidden></datalist>
                             </div>
 
-                            <div class="campo-formulario campo-cantidad">
-                                <label for="facturaCantidad">Cant.</label>
-                                <input
-                                    type="number"
-                                    id="facturaCantidad"
-                                    min="1"
-                                    step="1"
-                                    value="1"
-                                >
-                            </div>
-
-                            <button
-                                type="button"
-                                id="agregarProductoFactura"
-                                class="btn-primario btn-auto"
-                                title="Agregar producto"
-                                aria-label="Agregar producto"
-                            >
-                                <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                            </button>
-
                         </div>
 
                         <div id="infoProductoFactura" class="factura-producto-info" hidden></div>
 
                         <div class="pos-categoria-filtros" id="posCategoriaFiltros" role="group" aria-label="Filtrar por categoría"></div>
 
-                        <div class="pos-productos-grid" id="posCatalogoGrid" aria-live="polite"></div>
+                        <div class="pos-lista-contenedor">
+                            <table class="tabla-socios-lista pos-catalogo-lista">
+                                <tbody id="posCatalogoGrid" aria-live="polite"></tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- DERECHA: CARRITO DE VENTA -->

@@ -690,9 +690,11 @@ function seleccionarProductoDesdeDesplegable(producto) {
     }
     cerrarDesplegableProductos();
     mostrarInfoProducto(producto);
-    facturaCantidad.value = 1;
-    facturaCantidad.focus();
-    facturaCantidad.select();
+    if (facturaCantidad) {
+        facturaCantidad.value = 1;
+        facturaCantidad?.focus();
+        facturaCantidad.select();
+    }
 }
 
 if (btnLimpiarBusquedaProducto) {
@@ -817,7 +819,7 @@ function agregarProducto() {
     if (registrandoFactura) return;
 
     const producto = resolverProducto(facturaProductoBusqueda.value);
-    const cantidad = Number(facturaCantidad.value);
+    const cantidad = facturaCantidad ? Number(facturaCantidad.value) : 1;
 
     if (!facturaProductoBusqueda.value.trim()) {
         SouvanicUI.notificar("Buscá y seleccioná un producto.", "warning");
@@ -844,7 +846,7 @@ function agregarProducto() {
 
     if (!Number.isInteger(cantidad) || cantidad <= 0) {
         SouvanicUI.notificar("Ingresá una cantidad válida mayor que cero.", "warning");
-        facturaCantidad.focus();
+        facturaCantidad?.focus();
         return;
     }
 
@@ -885,7 +887,7 @@ function agregarProducto() {
         btnLimpiarBusquedaProducto.hidden = true;
     }
     cerrarDesplegableProductos();
-    facturaCantidad.value = 1;
+    if (facturaCantidad) facturaCantidad.value = 1;
     infoProductoFactura.hidden = true;
     infoProductoFactura.innerHTML = "";
     facturaProductoBusqueda.focus();
@@ -1869,7 +1871,7 @@ function limpiarFormularioFactura() {
     cerrarClienteRapido();
 
     facturaProductoBusqueda.value = "";
-    facturaCantidad.value = 1;
+    if (facturaCantidad) facturaCantidad.value = 1;
     infoProductoFactura.hidden = true;
     infoProductoFactura.innerHTML = "";
 
@@ -2945,10 +2947,13 @@ function renderizarCatalogoPOS() {
     posCatalogoGrid.innerHTML = "";
 
     if (filtrados.length === 0) {
-        const vacio = document.createElement("p");
-        vacio.className = "texto-secundario";
-        vacio.textContent = "No hay productos que coincidan con el filtro.";
-        posCatalogoGrid.appendChild(vacio);
+        const filaVacia = document.createElement("tr");
+        const celdaVacia = document.createElement("td");
+        celdaVacia.colSpan = 3;
+        celdaVacia.className = "texto-secundario";
+        celdaVacia.textContent = "No hay productos que coincidan con el filtro.";
+        filaVacia.appendChild(celdaVacia);
+        posCatalogoGrid.appendChild(filaVacia);
         return;
     }
 
@@ -2956,55 +2961,77 @@ function renderizarCatalogoPOS() {
         const stock = Number(prod.Stock) || 0;
         const enCarritoItem = detalleFactura.find(d => d.codigo === prod.CodigoProducto);
         const cantCarrito = enCarritoItem ? Number(enCarritoItem.cantidad) : 0;
+        const deshabilitado = stock <= 0 || cantCarrito >= stock;
 
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = "pos-producto-card" + (cantCarrito > 0 ? " en-carrito" : "");
-        card.dataset.codigo = prod.CodigoProducto;
-        card.disabled = stock <= 0 || cantCarrito >= stock;
+        const fila = document.createElement("tr");
+        fila.className = "socio-fila pos-lista-fila" +
+            (cantCarrito > 0 ? " en-carrito" : "") +
+            (deshabilitado ? " agotado" : "");
+        fila.tabIndex = deshabilitado ? -1 : 0;
+        fila.setAttribute("role", "button");
+        fila.setAttribute("aria-label", `Agregar ${prod.Nombre} al carrito`);
+        fila.dataset.codigo = prod.CodigoProducto;
+
+        const celdaInfo = document.createElement("td");
+        const nomEl = document.createElement("span");
+        nomEl.className = "pos-lista-nombre";
+        nomEl.textContent = prod.Nombre;
 
         if (cantCarrito > 0) {
             const badge = document.createElement("span");
-            badge.className = "pos-card-badge-carrito";
-            badge.textContent = String(cantCarrito);
-            card.appendChild(badge);
+            badge.className = "pos-lista-badge-carrito";
+            badge.textContent = `${cantCarrito}`;
+            nomEl.appendChild(badge);
         }
 
-        const catEl = document.createElement("span");
-        catEl.className = "pos-card-categoria";
-        catEl.textContent = prod.Categoria || "General";
+        const metaEl = document.createElement("span");
+        metaEl.className = "pos-lista-meta";
+        metaEl.textContent = `${prod.CodigoProducto} · ${prod.Categoria || "General"}`;
 
-        const nomEl = document.createElement("strong");
-        nomEl.className = "pos-card-nombre";
-        nomEl.textContent = prod.Nombre;
+        celdaInfo.append(nomEl, metaEl);
 
-        const codEl = document.createElement("span");
-        codEl.className = "pos-card-codigo";
-        codEl.textContent = prod.CodigoProducto;
-
-        const pie = document.createElement("div");
-        pie.className = "pos-card-pie";
+        const celdaPrecio = document.createElement("td");
+        celdaPrecio.style.textAlign = "right";
 
         const precioEl = document.createElement("span");
-        precioEl.className = "pos-card-precio";
+        precioEl.className = "pos-lista-precio";
         precioEl.textContent = `C$ ${formatearMoneda(prod.Precio)}`;
 
         const stockEl = document.createElement("span");
-        stockEl.className = "pos-card-stock" + (stock <= 0 ? " agotado" : "");
-        stockEl.textContent = stock <= 0 ? "Agotado" : `Stock: ${stock}`;
+        stockEl.className = "pos-lista-stock" + (stock <= 0 ? " agotado" : "");
+        stockEl.textContent = stock <= 0 ? "Agotado" : `Disp: ${stock}`;
 
-        pie.append(precioEl, stockEl);
-        card.append(catEl, nomEl, codEl, pie);
+        celdaPrecio.append(precioEl, stockEl);
 
-        card.addEventListener("click", () => {
-            if (registrandoFactura) return;
+        const celdaChevron = document.createElement("td");
+        celdaChevron.className = "col-chevron";
+
+        const btnChevron = document.createElement("button");
+        btnChevron.type = "button";
+        btnChevron.className = "socio-chevron-btn";
+        btnChevron.disabled = deshabilitado;
+        btnChevron.setAttribute("aria-label", `Agregar ${prod.Nombre}`);
+        btnChevron.innerHTML = '<i class="bi bi-chevron-right" aria-hidden="true"></i>';
+
+        celdaChevron.appendChild(btnChevron);
+        fila.append(celdaInfo, celdaPrecio, celdaChevron);
+
+        const agregarAlClic = () => {
+            if (registrandoFactura || deshabilitado) return;
             facturaProductoBusqueda.value = prod.CodigoProducto;
-            facturaCantidad.value = "1";
             agregarProducto();
             renderizarCatalogoPOS();
+        };
+
+        fila.addEventListener("click", agregarAlClic);
+        fila.addEventListener("keydown", e => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                agregarAlClic();
+            }
         });
 
-        posCatalogoGrid.appendChild(card);
+        posCatalogoGrid.appendChild(fila);
     });
 }
 
