@@ -15,11 +15,14 @@ Este archivo define las reglas y convenciones obligatorias para cualquier agente
   - `middlewares/auth.middleware.js`: `verificarToken` (JWT HS256) y `verificarRol(...)`.
   - `services/`: `schema.service.js`, `pagos.service.js`, `neurona.listeners.js`.
   - `controllers/` y `routes/`: Separación por dominio (`auth`, `productos`, `clientes`/`socios`, `facturas`, `dashboard`, `inventario`, `neurona`).
-- **Documentación (`docs/`)**: `PRD.md`, `UI_UX.md`, `FLUJO_DE_TRABAJO.md`, `ANALISIS_FALLAS.md`.
+- **Documentación (`docs/`)**: `PRD.md`, `UI_UX.md`, `FLUJO_DE_TRABAJO.md`, `ANALISIS_FALLAS.md`, `PLAN_MEJORA_Y_MODULOS.md`, `PLAN_EJECUCION_POR_FASES.md`.
 
 ---
 
 ## 2. Reglas de Desarrollo Obligatorias
+0. **Cumplimiento Estricto del Plan por Fases**:
+   - Todo agente que trabaje en nuevas funcionalidades debe seguir estrictamente el orden y los checklists de `docs/PLAN_EJECUCION_POR_FASES.md` (Fase 1 → Fase 2 → Fase 3 → Fase 4 → Fase 5 Seguridad al final).
+   - Ninguna fase se da por finalizada sin migraciones duales, sinapsis en Neurona, estándar de listados (`>` + modal) y verificación E2E con Playwright.
 1. **Compatibilidad Dual de Base de Datos**:
    - Toda consulta SQL debe funcionar tanto en **SQLite** como en **SQL Server**.
    - Usa consultas parametrizadas con `.input("nombre", sql.Tipo, valor)`.
