@@ -7,6 +7,7 @@ const { verificarToken, verificarRol } = require("../middlewares/auth.middleware
 const router = express.Router();
 
 router.post("/", verificarToken, facturasController.crearFactura);
+router.put("/:id", verificarToken, verificarRol("Administrador"), facturasController.actualizarFactura);
 router.get("/", verificarToken, facturasController.listarFacturas);
 router.get("/:id/detalle", verificarToken, facturasController.obtenerDetalleFactura);
 router.get("/:id/completo", verificarToken, facturasController.obtenerFacturaCompleta);

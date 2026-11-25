@@ -881,8 +881,357 @@ async function anularFactura(req, res) {
     }
 }
 
+async function actualizarFactura(req, res) {
+    const idFactura = Number(req.params.id);
+    if (!Number.isInteger(idFactura) || idFactura <= 0) {
+        return res.status(400).json({ mensaje: "Número de factura no válido." });
+    }
+
+    const {
+        idCliente,
+        productos,
+        pagos,
+        descuentoGeneral,
+        impuestoPorcentaje
+    } = req.body;
+
+    if (
+        typeof idCliente !== "string" ||
+        idCliente.trim() === "" ||
+        !Array.isArray(productos) ||
+        productos.length === 0 ||
+        productos.length > 100
+    ) {
+        return res.status(400).json({
+            mensaje: "Seleccioná un cliente y agregá productos."
+        });
+    }
+
+    const pagosEntrada = pagos === undefined || pagos === null ? [] : pagos;
+    if (!Array.isArray(pagosEntrada) || pagosEntrada.length > 10) {
+        return res.status(400).json({ mensaje: "Los pagos enviados no son válidos." });
+    }
+
+    const descuentoGeneralNumero = descuentoGeneral === undefined ? 0 : Number(descuentoGeneral);
+    const impuestoNumero = impuestoPorcentaje === undefined ? 0 : Number(impuestoPorcentaje);
+
+    if (
+        !Number.isFinite(descuentoGeneralNumero) ||
+        descuentoGeneralNumero < 0 ||
+        !Number.isFinite(impuestoNumero) ||
+        impuestoNumero < 0 ||
+        impuestoNumero > 100
+    ) {
+        return res.status(400).json({ mensaje: "Los descuentos o impuestos no son válidos." });
+    }
+
+    const codigos = new Set();
+    const productosNormalizados = [];
+    for (const producto of productos) {
+        const descuentoProducto = producto && producto.descuentoPorcentaje !== undefined
+            ? Number(producto.descuentoPorcentaje)
+            : 0;
+
+        if (
+            !producto ||
+            typeof producto.codigo !== "string" ||
+            producto.codigo.trim() === "" ||
+            !Number.isInteger(producto.cantidad) ||
+            producto.cantidad <= 0 ||
+            !Number.isFinite(descuentoProducto) ||
+            descuentoProducto < 0 ||
+            descuentoProducto > 100 ||
+            codigos.has(producto.codigo)
+        ) {
+            return res.status(400).json({
+                mensaje: "Los productos, cantidades o descuentos no son válidos."
+            });
+        }
+
+        codigos.add(producto.codigo.trim());
+        productosNormalizados.push({
+            codigo: producto.codigo.trim(),
+            cantidad: producto.cantidad,
+            descuentoPorcentaje: descuentoProducto
+        });
+    }
+
+    let pagosNormalizados;
+    try {
+        pagosNormalizados = pagosEntrada.map((pago, indice) => validarPagoManual(pago, indice));
+    } catch (errorValidacion) {
+        return res.status(errorValidacion.status || 400).json({ mensaje: errorValidacion.message });
+    }
+
+    let transaccion;
+    try {
+        const pool = await sql.connect(config);
+        transaccion = new sql.Transaction(pool);
+        await transaccion.begin();
+
+        const facturaExistente = await new sql.Request(transaccion)
+            .input("idFactura", sql.Int, idFactura)
+            .query("SELECT IdFactura, Estado FROM Facturas WHERE IdFactura = @idFactura");
+
+        if (facturaExistente.recordset.length === 0) {
+            throw errorHttp("La factura no existe.", 404);
+        }
+
+        if (facturaExistente.recordset[0].Estado === "Anulada") {
+            throw errorHttp("No se puede editar una factura anulada.", 409);
+        }
+
+        const clienteRes = await new sql.Request(transaccion)
+            .input("idCliente", sql.VarChar(29), idCliente.trim())
+            .query("SELECT IdCliente FROM Clientes WHERE IdCliente = @idCliente");
+
+        if (clienteRes.recordset.length === 0) {
+            throw errorHttp("El cliente seleccionado no existe.", 404);
+        }
+
+        // 1. Restaurar stock del detalle anterior
+        const detalleAnterior = await new sql.Request(transaccion)
+            .input("idFactura", sql.Int, idFactura)
+            .query("SELECT CodigoProducto, Cantidad FROM DetalleFactura WHERE IdFactura = @idFactura");
+
+        for (const itemAnt of detalleAnterior.recordset) {
+            const rest = await new sql.Request(transaccion)
+                .input("codigo", sql.VarChar(29), itemAnt.CodigoProducto)
+                .input("cantidad", sql.Int, itemAnt.Cantidad)
+                .query(isSqlite ? `
+                    UPDATE Productos
+                    SET Stock = Stock + @cantidad
+                    WHERE CodigoProducto = @codigo
+                    RETURNING (Stock - @cantidad) AS StockAnterior, Stock AS StockNuevo
+                ` : `
+                    UPDATE Productos
+                    SET Stock = Stock + @cantidad
+                    OUTPUT deleted.Stock AS StockAnterior, inserted.Stock AS StockNuevo
+                    WHERE CodigoProducto = @codigo
+                `);
+
+            if (rest.recordset.length > 0) {
+                await new sql.Request(transaccion)
+                    .input("codigo", sql.VarChar(29), itemAnt.CodigoProducto)
+                    .input("tipo", sql.VarChar(20), "Entrada")
+                    .input("cantidad", sql.Int, itemAnt.Cantidad)
+                    .input("anterior", sql.Int, rest.recordset[0].StockAnterior)
+                    .input("nuevo", sql.Int, rest.recordset[0].StockNuevo)
+                    .input("motivo", sql.VarChar(255), `Edición factura N° ${idFactura}`)
+                    .input("usuario", sql.Int, req.usuario.id)
+                    .input("factura", sql.Int, idFactura)
+                    .query(`
+                        INSERT INTO MovimientosInventario
+                            (CodigoProducto, TipoMovimiento, Cantidad, StockAnterior, StockNuevo, Motivo, IdUsuario, IdFactura)
+                        VALUES
+                            (@codigo, @tipo, @cantidad, @anterior, @nuevo, @motivo, @usuario, @factura)
+                    `);
+            }
+        }
+
+        // 2. Limpiar detalle y pagos anteriores
+        await new sql.Request(transaccion)
+            .input("idFactura", sql.Int, idFactura)
+            .query("DELETE FROM DetalleFactura WHERE IdFactura = @idFactura");
+
+        await new sql.Request(transaccion)
+            .input("idFactura", sql.Int, idFactura)
+            .query("DELETE FROM Pagos WHERE IdFactura = @idFactura");
+
+        // 3. Validar nuevos productos y calcular totales
+        let subtotalBruto = 0;
+        let descuentoProductos = 0;
+        const detalleNuevo = [];
+
+        for (const item of productosNormalizados) {
+            const prodRes = await new sql.Request(transaccion)
+                .input("codigo", sql.VarChar(29), item.codigo)
+                .query("SELECT CodigoProducto, Nombre, Precio, Stock, Activo FROM Productos WHERE CodigoProducto = @codigo");
+
+            if (prodRes.recordset.length === 0) {
+                throw errorHttp(`El producto ${item.codigo} no existe.`, 404);
+            }
+
+            const prod = prodRes.recordset[0];
+            if (!prod.Activo) {
+                throw errorHttp(`El producto ${prod.Nombre} está desactivado.`, 409);
+            }
+            if (Number(prod.Stock) < item.cantidad) {
+                throw errorHttp(`Stock insuficiente para ${prod.Nombre}. Disponible: ${prod.Stock}.`, 409);
+            }
+
+            const precio = redondearMoneda(prod.Precio);
+            const lineaBruto = redondearMoneda(precio * item.cantidad);
+            const descuentoLinea = redondearMoneda(lineaBruto * (item.descuentoPorcentaje / 100));
+
+            subtotalBruto = redondearMoneda(subtotalBruto + lineaBruto);
+            descuentoProductos = redondearMoneda(descuentoProductos + descuentoLinea);
+
+            detalleNuevo.push({
+                codigo: prod.CodigoProducto,
+                nombre: prod.Nombre,
+                cantidad: item.cantidad,
+                precio,
+                descuento: descuentoLinea
+            });
+        }
+
+        const descuentoGeneral = redondearMoneda(descuentoGeneralNumero);
+        const subtotalConDescuentoProductos = redondearMoneda(subtotalBruto - descuentoProductos);
+        if (descuentoGeneral > subtotalConDescuentoProductos) {
+            throw errorHttp("El descuento general supera el subtotal disponible.");
+        }
+
+        const baseImponible = redondearMoneda(subtotalConDescuentoProductos - descuentoGeneral);
+        const descuentoTotal = redondearMoneda(descuentoProductos + descuentoGeneral);
+        const impuesto = redondearMoneda(baseImponible * (impuestoNumero / 100));
+        const total = redondearMoneda(baseImponible + impuesto);
+
+        if (total <= 0) {
+            throw errorHttp("El total de la factura debe ser mayor que cero.");
+        }
+
+        const totalPagado = redondearMoneda(pagosNormalizados.reduce((acc, p) => acc + p.monto, 0));
+        if (totalPagado > redondearMoneda(total + 0.01)) {
+            throw errorHttp("La suma de los pagos supera el total de la factura.");
+        }
+
+        const vueltoTotal = redondearMoneda(pagosNormalizados.reduce((acc, p) => acc + Number(p.vuelto || 0), 0));
+        const saldo = redondearMoneda(total - totalPagado);
+        const estado = pagosNormalizados.length === 0 ? "Registrada" : saldo <= 0.01 ? "Pagada" : "Pendiente";
+
+        // 4. Actualizar Factura, insertar nuevo Detalle, descontar stock e insertar Pagos
+        await new sql.Request(transaccion)
+            .input("idFactura", sql.Int, idFactura)
+            .input("idCliente", sql.VarChar(29), idCliente.trim())
+            .input("subtotal", sql.Decimal(12, 2), subtotalBruto)
+            .input("descuento", sql.Decimal(12, 2), descuentoTotal)
+            .input("impuesto", sql.Decimal(12, 2), impuesto)
+            .input("total", sql.Decimal(12, 2), total)
+            .input("estado", sql.VarChar(16), estado)
+            .query(`
+                UPDATE Facturas
+                SET IdCliente = @idCliente,
+                    Subtotal = @subtotal,
+                    Descuento = @descuento,
+                    Impuesto = @impuesto,
+                    Total = @total,
+                    Estado = @estado
+                WHERE IdFactura = @idFactura
+            `);
+
+        for (const item of detalleNuevo) {
+            await new sql.Request(transaccion)
+                .input("idFactura", sql.Int, idFactura)
+                .input("codigo", sql.VarChar(29), item.codigo)
+                .input("cantidad", sql.Int, item.cantidad)
+                .input("precio", sql.Decimal(10, 2), item.precio)
+                .input("descuento", sql.Decimal(12, 2), item.descuento)
+                .query(`
+                    INSERT INTO DetalleFactura (IdFactura, CodigoProducto, Cantidad, PrecioUnitario, DescuentoAplicado)
+                    VALUES (@idFactura, @codigo, @cantidad, @precio, @descuento)
+                `);
+
+            const stock = await new sql.Request(transaccion)
+                .input("codigo", sql.VarChar(29), item.codigo)
+                .input("cantidad", sql.Int, item.cantidad)
+                .query(isSqlite ? `
+                    UPDATE Productos
+                    SET Stock = Stock - @cantidad
+                    WHERE CodigoProducto = @codigo AND Activo = 1 AND Stock >= @cantidad
+                    RETURNING (Stock + @cantidad) AS StockAnterior, Stock AS StockNuevo
+                ` : `
+                    UPDATE Productos
+                    SET Stock = Stock - @cantidad
+                    OUTPUT deleted.Stock AS StockAnterior, inserted.Stock AS StockNuevo
+                    WHERE CodigoProducto = @codigo AND Activo = 1 AND Stock >= @cantidad
+                `);
+
+            if (stock.recordset.length === 0) {
+                throw errorHttp(`Stock insuficiente de ${item.nombre}.`, 409);
+            }
+
+            await new sql.Request(transaccion)
+                .input("codigo", sql.VarChar(29), item.codigo)
+                .input("tipo", sql.VarChar(20), "Salida")
+                .input("cantidad", sql.Int, item.cantidad)
+                .input("anterior", sql.Int, stock.recordset[0].StockAnterior)
+                .input("nuevo", sql.Int, stock.recordset[0].StockNuevo)
+                .input("motivo", sql.VarChar(255), `Edición factura N° ${idFactura}`)
+                .input("usuario", sql.Int, req.usuario.id)
+                .input("factura", sql.Int, idFactura)
+                .query(`
+                    INSERT INTO MovimientosInventario
+                        (CodigoProducto, TipoMovimiento, Cantidad, StockAnterior, StockNuevo, Motivo, IdUsuario, IdFactura)
+                    VALUES
+                        (@codigo, @tipo, @cantidad, @anterior, @nuevo, @motivo, @usuario, @factura)
+                `);
+        }
+
+        for (const pago of pagosNormalizados) {
+            await new sql.Request(transaccion)
+                .input("idFactura", sql.Int, idFactura)
+                .input("metodo", sql.VarChar(20), pago.metodo)
+                .input("monto", sql.Decimal(12, 2), pago.monto)
+                .input("montoRecibido", sql.Decimal(12, 2), pago.montoRecibido)
+                .input("vuelto", sql.Decimal(12, 2), pago.vuelto)
+                .input("banco", sql.VarChar(40), pago.banco)
+                .input("bancoDestino", sql.VarChar(60), pago.bancoDestino)
+                .input("cuentaDestino", sql.VarChar(60), pago.cuentaDestino)
+                .input("referencia", sql.VarChar(60), pago.referencia)
+                .input("observaciones", sql.NVarChar(255), pago.observaciones)
+                .input("estado", sql.VarChar(20), "Registrado")
+                .input("usuario", sql.Int, req.usuario.id)
+                .query(`
+                    INSERT INTO Pagos
+                        (IdFactura, Metodo, Monto, MontoRecibido, Vuelto, Banco, BancoDestino, CuentaDestino, Referencia, Observaciones, Estado, IdUsuario)
+                    VALUES
+                        (@idFactura, @metodo, @monto, @montoRecibido, @vuelto, @banco, @bancoDestino, @cuentaDestino, @referencia, @observaciones, @estado, @usuario)
+                `);
+        }
+
+        await transaccion.commit();
+
+        neurona.emitir("factura:actualizada", {
+            idFactura,
+            total,
+            estado,
+            productos: detalleNuevo.map(d => d.codigo)
+        }, { origen: "facturas.controller", idUsuario: req.usuario?.id });
+
+        res.json({
+            mensaje: `Factura N.° ${idFactura} actualizada correctamente.`,
+            idFactura,
+            subtotal: subtotalBruto,
+            descuento: descuentoTotal,
+            impuesto,
+            total,
+            estado,
+            pagado: totalPagado,
+            saldo,
+            vuelto: vueltoTotal
+        });
+    } catch (error) {
+        if (transaccion) {
+            try {
+                await transaccion.rollback();
+            } catch (rollbackError) {
+                console.error("Error al revertir edición:", rollbackError);
+            }
+        }
+        console.error("Error al editar factura:", error);
+        if (error.number === 2627 || error.number === 2601) {
+            return res.status(409).json({ mensaje: "Ya existe un pago con esa referencia." });
+        }
+        res.status(error.status || 500).json({
+            mensaje: error.status ? error.message : "No se pudo actualizar la factura."
+        });
+    }
+}
+
 module.exports = {
     crearFactura,
+    actualizarFactura,
     listarFacturas,
     obtenerDetalleFactura,
     obtenerFacturaCompleta,
