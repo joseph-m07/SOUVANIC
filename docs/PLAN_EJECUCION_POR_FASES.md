@@ -102,3 +102,4 @@ Antes de dar por cerrada cualquier fase, el agente **DEBE** cumplir sin excepci�
 - [ ] **Assets Locales**: Empaquetar `bootstrap-icons` localmente para operación sin internet en tienda.
 - [ ] **Suite de Tests Automatizados**: Implementar pruebas unitarias/integración (`npm test`) para `pagos.service`, `facturas.controller`, `neurona` y validación de permisos por rol (`Vendedor` vs `Administrador`).
 - [ ] **Auditoría Final**: Verificación completa con Playwright en roles `Administrador` y `Vendedor` + revisión de cabeceras HTTP (`helmet`).
+
