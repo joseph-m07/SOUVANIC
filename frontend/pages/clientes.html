@@ -132,7 +132,7 @@
 
                 <div class="tabla-contenedor-responsiva">
 
-                    <table>
+                    <table class="tabla-socios-lista">
 
                         <thead>
                             <tr>
@@ -142,7 +142,7 @@
                                 <th>Teléfono</th>
                                 <th>Correo</th>
                                 <th>Dirección</th>
-                                <th>Acciones</th>
+                                <th class="col-chevron" aria-label="Opciones"></th>
                             </tr>
                         </thead>
 
@@ -248,6 +248,61 @@
 
     </div>
 
+</div>
+
+<!-- Ventana de detalle y opciones del socio -->
+<div class="modal" id="socioOpcionesModal" role="dialog" aria-modal="true" aria-labelledby="socioOpcionesNombre">
+    <div class="modal-content socio-opciones-modal">
+        <button class="close-socio-opciones clase-modal" type="button" aria-label="Cerrar">
+            &times;
+        </button>
+
+        <div class="socio-opciones-header">
+            <div class="socio-opciones-avatar" aria-hidden="true">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <div>
+                <h2 id="socioOpcionesNombre">Socio</h2>
+                <p class="socio-opciones-id" id="socioOpcionesId"></p>
+                <div class="socio-badges" id="socioOpcionesBadges"></div>
+            </div>
+        </div>
+
+        <div class="socio-opciones-datos">
+            <div class="socio-dato-item">
+                <span class="socio-dato-label"><i class="bi bi-telephone"></i> Teléfono</span>
+                <strong id="socioOpcionesTelefono">-</strong>
+            </div>
+            <div class="socio-dato-item">
+                <span class="socio-dato-label"><i class="bi bi-envelope"></i> Correo</span>
+                <strong id="socioOpcionesCorreo">-</strong>
+            </div>
+            <div class="socio-dato-item">
+                <span class="socio-dato-label"><i class="bi bi-geo-alt"></i> Dirección</span>
+                <strong id="socioOpcionesDireccion">-</strong>
+            </div>
+        </div>
+
+        <div class="socio-opciones-acciones">
+            <button type="button" class="btn-socio-opcion btn-socio-editar" id="btnSocioOpcionEditar">
+                <i class="bi bi-pencil-square"></i>
+                <span>Editar datos del socio</span>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+
+            <a href="facturas.html" class="btn-socio-opcion btn-socio-facturar" id="btnSocioOpcionFacturar">
+                <i class="bi bi-receipt"></i>
+                <span>Ir a Nueva Factura</span>
+                <i class="bi bi-chevron-right"></i>
+            </a>
+
+            <button type="button" class="btn-socio-opcion btn-socio-eliminar" id="btnSocioOpcionEliminar">
+                <i class="bi bi-trash3"></i>
+                <span>Eliminar socio</span>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
 </div>
 
 <!-- JavaScript -->
