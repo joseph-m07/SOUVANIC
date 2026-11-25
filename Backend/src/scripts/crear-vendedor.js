@@ -1,8 +1,9 @@
 
-require("dotenv").config();
+const path = require("node:path");
+require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
 const bcrypt = require("bcrypt");
-const { sql, config } = require("./database");
+const { sql, config } = require("../config/database");
 
 async function crearVendedor() {
     try {

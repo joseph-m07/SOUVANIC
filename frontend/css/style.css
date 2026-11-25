@@ -7460,3 +7460,90 @@ th[aria-sort="descending"] .th-orden i {
         padding: 5px 7px;
     }
 }
+
+/* ==========================================
+   SOCIOS: FILTROS, BADGES Y CHECKBOXES
+   ========================================== */
+.socio-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.socio-filtro-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.socio-filtro-btn:hover {
+    border-color: #1a4b77;
+    color: #1a4b77;
+}
+
+.socio-filtro-btn.active {
+    background: #1a4b77;
+    border-color: #1a4b77;
+    color: #ffffff;
+}
+
+.socio-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.socio-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.socio-badge-cliente {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.socio-badge-proveedor {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.socio-badge-empleado {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.socio-roles-grupo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 6px 0 12px;
+    padding: 8px 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.socio-role-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+}
+
+.socio-role-check input[type="checkbox"] {
+    width: auto !important;
+    margin: 0 !important;
+}
