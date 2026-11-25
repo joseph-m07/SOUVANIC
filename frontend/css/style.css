@@ -5018,12 +5018,13 @@ body.modal-dashboard-abierto {
     }
 
     /* Solo se imprime el documento abierto; el resto no ocupa páginas */
-    body > *:not(#modalDetalleFactura):not(#modalComprobanteMovimiento) {
+    body > *:not(#modalDetalleFactura):not(#modalComprobanteMovimiento):not(#modalVoucherFactura) {
         display: none !important;
     }
 
     #modalDetalleFactura[hidden],
-    #modalComprobanteMovimiento[hidden] {
+    #modalComprobanteMovimiento[hidden],
+    #modalVoucherFactura[hidden] {
         display: none !important;
     }
 
@@ -7801,8 +7802,41 @@ tr.socio-fila:hover .socio-chevron-btn {
 }
 
 @media print {
-    body.imprimiendo-voucher * {
-        visibility: hidden !important;
+    @page voucher {
+        size: 80mm auto;
+        margin: 3mm;
+    }
+
+    body.imprimiendo-voucher > *:not(#modalVoucherFactura) {
+        display: none !important;
+    }
+
+    body.imprimiendo-voucher #modalVoucherFactura {
+        display: block !important;
+        position: static !important;
+        inset: auto !important;
+        width: auto !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        overflow: visible !important;
+        page: voucher;
+    }
+
+    body.imprimiendo-voucher .modal-voucher-barra {
+        display: none !important;
+    }
+
+    body.imprimiendo-voucher .modal-voucher-caja {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
     }
 
     body.imprimiendo-voucher #voucherFacturaContenedor,
@@ -7812,14 +7846,12 @@ tr.socio-fila:hover .socio-chevron-btn {
 
     body.imprimiendo-voucher #voucherFacturaContenedor {
         display: block !important;
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 76mm;
-        margin: 0;
-        padding: 4mm;
-        border: none;
-        box-shadow: none;
+        position: static !important;
+        width: 74mm !important;
+        margin: 0 !important;
+        padding: 2mm !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 }
 
