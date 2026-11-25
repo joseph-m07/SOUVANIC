@@ -94,6 +94,11 @@ const paginacionFacturas = document.getElementById("paginacionFacturas");
 const modalDetalleFactura = document.getElementById("modalDetalleFactura");
 const cerrarDetalleFactura = document.getElementById("cerrarDetalleFactura");
 const imprimirFactura = document.getElementById("imprimirFactura");
+const imprimirVoucher = document.getElementById("imprimirVoucher");
+const abrirModalVoucher = document.getElementById("abrirModalVoucher");
+const cerrarModalVoucher = document.getElementById("cerrarModalVoucher");
+const modalVoucherFactura = document.getElementById("modalVoucherFactura");
+const voucherFacturaContenedor = document.getElementById("voucherFacturaContenedor");
 
 const numeroFacturaDetalle = document.getElementById("numeroFacturaDetalle");
 const estadoDetalleFactura = document.getElementById("estadoDetalleFactura");
@@ -380,7 +385,7 @@ function cerrarClienteRapido() {
     btnClienteRapido.setAttribute("aria-expanded", "false");
 }
 
-btnClienteRapido.addEventListener("click", function() {
+btnClienteRapido?.addEventListener("click", function() {
     if (formClienteRapido.hidden) {
         abrirClienteRapido();
     } else {
@@ -388,9 +393,9 @@ btnClienteRapido.addEventListener("click", function() {
     }
 });
 
-btnCancelarClienteRapido.addEventListener("click", cerrarClienteRapido);
+btnCancelarClienteRapido?.addEventListener("click", cerrarClienteRapido);
 
-formClienteRapido.addEventListener("submit", async function(event) {
+formClienteRapido?.addEventListener("submit", async function(event) {
 
     event.preventDefault();
 
@@ -495,7 +500,7 @@ formClienteRapido.addEventListener("submit", async function(event) {
     }
 });
 
-facturaClienteBusqueda.addEventListener("input", function() {
+facturaClienteBusqueda?.addEventListener("input", function() {
     window.clearTimeout(temporizadorBusquedaCliente);
     temporizadorBusquedaCliente = window.setTimeout(function() {
         aplicarFiltroClientes();
@@ -527,6 +532,15 @@ function abrirDesplegableProductos() {
     if (!menuDesplegableProductos) return;
     menuDesplegableProductos.hidden = false;
     facturaProductoBusqueda.setAttribute("aria-expanded", "true");
+}
+
+function escapeHtml(texto) {
+    return String(texto ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }
 
 function cerrarDesplegableProductos() {
@@ -676,13 +690,15 @@ function seleccionarProductoDesdeDesplegable(producto) {
     }
     cerrarDesplegableProductos();
     mostrarInfoProducto(producto);
-    facturaCantidad.value = 1;
-    facturaCantidad.focus();
-    facturaCantidad.select();
+    if (facturaCantidad) {
+        facturaCantidad.value = 1;
+        facturaCantidad?.focus();
+        facturaCantidad.select();
+    }
 }
 
 if (btnLimpiarBusquedaProducto) {
-    btnLimpiarBusquedaProducto.addEventListener("click", () => {
+    btnLimpiarBusquedaProducto?.addEventListener("click", () => {
         facturaProductoBusqueda.value = "";
         btnLimpiarBusquedaProducto.hidden = true;
         infoProductoFactura.hidden = true;
@@ -710,6 +726,7 @@ async function cargarProductos() {
 
         actualizarListaProductos();
         mostrarDetalleFactura();
+        renderizarCatalogoPOS();
 
         const productoActual = resolverProducto(facturaProductoBusqueda.value);
 
@@ -773,14 +790,14 @@ function mostrarInfoProducto(producto) {
     infoProductoFactura.hidden = false;
 }
 
-facturaProductoBusqueda.addEventListener("focus", function() {
+facturaProductoBusqueda?.addEventListener("focus", function() {
     if (btnLimpiarBusquedaProducto) {
         btnLimpiarBusquedaProducto.hidden = !facturaProductoBusqueda.value.trim();
     }
     renderizarMenuProductos(facturaProductoBusqueda.value.trim());
 });
 
-facturaProductoBusqueda.addEventListener("input", function() {
+facturaProductoBusqueda?.addEventListener("input", function() {
     if (btnLimpiarBusquedaProducto) {
         btnLimpiarBusquedaProducto.hidden = !facturaProductoBusqueda.value.trim();
     }
@@ -802,7 +819,7 @@ function agregarProducto() {
     if (registrandoFactura) return;
 
     const producto = resolverProducto(facturaProductoBusqueda.value);
-    const cantidad = Number(facturaCantidad.value);
+    const cantidad = facturaCantidad ? Number(facturaCantidad.value) : 1;
 
     if (!facturaProductoBusqueda.value.trim()) {
         SouvanicUI.notificar("Buscá y seleccioná un producto.", "warning");
@@ -829,7 +846,7 @@ function agregarProducto() {
 
     if (!Number.isInteger(cantidad) || cantidad <= 0) {
         SouvanicUI.notificar("Ingresá una cantidad válida mayor que cero.", "warning");
-        facturaCantidad.focus();
+        facturaCantidad?.focus();
         return;
     }
 
@@ -870,15 +887,15 @@ function agregarProducto() {
         btnLimpiarBusquedaProducto.hidden = true;
     }
     cerrarDesplegableProductos();
-    facturaCantidad.value = 1;
+    if (facturaCantidad) facturaCantidad.value = 1;
     infoProductoFactura.hidden = true;
     infoProductoFactura.innerHTML = "";
     facturaProductoBusqueda.focus();
 }
 
-agregarProductoFactura.addEventListener("click", agregarProducto);
+agregarProductoFactura?.addEventListener("click", agregarProducto);
 
-facturaProductoBusqueda.addEventListener("keydown", function(event) {
+facturaProductoBusqueda?.addEventListener("keydown", function(event) {
     if (event.key === "ArrowDown") {
         event.preventDefault();
         if (menuDesplegableProductos && menuDesplegableProductos.hidden) {
@@ -921,7 +938,7 @@ facturaProductoBusqueda.addEventListener("keydown", function(event) {
     }
 });
 
-facturaCantidad.addEventListener("keydown", function(event) {
+facturaCantidad?.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         event.preventDefault();
         agregarProducto();
@@ -955,6 +972,7 @@ function crearEntradaTabla(tipo, valor) {
 }
 
 function mostrarDetalleFactura() {
+    if (!detalleFacturaBody) return;
 
     detalleFacturaBody.innerHTML = "";
 
@@ -1013,8 +1031,10 @@ function mostrarDetalleFactura() {
         const botonEliminar = document.createElement("button");
 
         botonEliminar.type = "button";
-        botonEliminar.textContent = "Quitar";
-        botonEliminar.className = "quitar-producto-btn";
+        botonEliminar.className = "quitar-producto-btn btn-icono-factura";
+        botonEliminar.title = "Quitar producto del carrito";
+        botonEliminar.setAttribute("aria-label", "Quitar producto del carrito");
+        botonEliminar.innerHTML = '<i class="bi bi-trash3" aria-hidden="true"></i>';
         botonEliminar.dataset.indice = indice;
 
         celdaAcciones.appendChild(botonEliminar);
@@ -1099,7 +1119,7 @@ function actualizarTotales() {
     actualizarResumenPagos(totales);
 }
 
-detalleFacturaBody.addEventListener("click", function(event) {
+detalleFacturaBody?.addEventListener("click", function(event) {
 
     if (registrandoFactura) return;
 
@@ -1115,7 +1135,7 @@ detalleFacturaBody.addEventListener("click", function(event) {
     mostrarDetalleFactura();
 });
 
-detalleFacturaBody.addEventListener("change", function(event) {
+detalleFacturaBody?.addEventListener("change", function(event) {
 
     if (registrandoFactura) return;
 
@@ -1178,14 +1198,15 @@ detalleFacturaBody.addEventListener("change", function(event) {
     mostrarDetalleFactura();
 });
 
-descuentoGeneralFactura.addEventListener("input", actualizarTotales);
-impuestoFactura.addEventListener("input", actualizarTotales);
+descuentoGeneralFactura?.addEventListener("input", actualizarTotales);
+impuestoFactura?.addEventListener("input", actualizarTotales);
 
 // ========================================
 // PAGOS
 // ========================================
 
 function actualizarCamposPago() {
+    if (!pagoMetodo) return;
 
     const metodo = pagoMetodo.value;
 
@@ -1197,7 +1218,7 @@ function actualizarCamposPago() {
     campoReferencia.hidden = !(metodo === "Tarjeta" || metodo === "Transferencia");
 }
 
-pagoMetodo.addEventListener("change", actualizarCamposPago);
+pagoMetodo?.addEventListener("change", actualizarCamposPago);
 
 function totalPagosRegistrados() {
     return redondearMoneda(
@@ -1217,6 +1238,21 @@ function actualizarResumenPagos(totales = obtenerTotales()) {
     totalPagadoFactura.textContent = formatearMoneda(pagado);
     saldoFactura.textContent = formatearMoneda(excedido ? 0 : saldo);
     vueltoFactura.textContent = formatearMoneda(vuelto);
+
+    const saldoEnCero = totales.total > 0 && saldo <= 0.009;
+    if (btnAgregarPago) {
+        btnAgregarPago.disabled = registrandoFactura || saldoEnCero;
+        btnAgregarPago.title = saldoEnCero
+            ? "El saldo pendiente es C$ 0.00"
+            : "Agregar pago";
+    }
+    if (pagoMetodo) {
+        pagoMetodo.disabled = registrandoFactura || saldoEnCero;
+        if (saldoEnCero) {
+            pagoMetodo.value = "";
+            actualizarCamposPago();
+        }
+    }
 
     if (pagosFactura.length === 0) {
         estadoPagoFactura.textContent = "Sin pagos";
@@ -1258,6 +1294,14 @@ function agregarPago() {
 
     const metodo = pagoMetodo.value;
     const totales = obtenerTotales();
+
+    if (totales.total > 0 && redondearMoneda(totales.total - totalPagosRegistrados()) <= 0.009) {
+        SouvanicUI.notificar(
+            "El saldo pendiente es C$ 0.00. No podés agregar más métodos de pago.",
+            "warning"
+        );
+        return;
+    }
 
     if (!METODOS_PAGO_UI.includes(metodo)) {
         SouvanicUI.notificar("Seleccioná un método de pago.", "warning");
@@ -1411,9 +1455,9 @@ function agregarPago() {
     SouvanicUI.notificar("Pago agregado a la factura.", "success");
 }
 
-btnAgregarPago.addEventListener("click", agregarPago);
+btnAgregarPago?.addEventListener("click", agregarPago);
 
-pagoMonto.addEventListener("keydown", function(event) {
+pagoMonto?.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         event.preventDefault();
         agregarPago();
@@ -1431,6 +1475,7 @@ function textoBancoReferencia(pago) {
 }
 
 function renderPagos() {
+    if (!pagosFacturaLista) return;
 
     pagosFacturaLista.innerHTML = "";
 
@@ -1487,16 +1532,18 @@ function renderPagos() {
 
         const boton = document.createElement("button");
         boton.type = "button";
-        boton.className = "quitar-pago-btn";
+        boton.className = "quitar-pago-btn btn-icono-factura";
         boton.dataset.indice = indice;
-        boton.textContent = "Quitar";
+        boton.title = "Quitar pago";
+        boton.setAttribute("aria-label", "Quitar pago");
+        boton.innerHTML = '<i class="bi bi-trash3" aria-hidden="true"></i>';
 
         item.append(icono, datos, boton);
         pagosFacturaLista.appendChild(item);
     });
 }
 
-pagosFacturaLista.addEventListener("click", function(event) {
+pagosFacturaLista?.addEventListener("click", function(event) {
 
     if (registrandoFactura) return;
 
@@ -1518,6 +1565,7 @@ pagosFacturaLista.addEventListener("click", function(event) {
 // ========================================
 
 function configurarRolFacturacion() {
+    if (!bloqueDescuentoGeneral || !bloqueImpuesto) return;
 
     bloqueDescuentoGeneral.hidden = !esAdminFacturacion;
     bloqueImpuesto.hidden = !esAdminFacturacion;
@@ -1746,9 +1794,15 @@ async function registrarFactura(imprimirDespues = false) {
 
     cambiarEstadoRegistro(true);
 
+    const editando = Number.isInteger(idFacturaEditando) && idFacturaEditando > 0;
+    const rutaEnvio = editando
+        ? `/facturas/${encodeURIComponent(idFacturaEditando)}`
+        : "/facturas";
+    const metodoEnvio = editando ? "PUT" : "POST";
+
     try {
-        const respuesta = await fetchAutenticado("/facturas", {
-            method: "POST",
+        const respuesta = await fetchAutenticado(rutaEnvio, {
+            method: metodoEnvio,
             headers: {
                 "Content-Type": "application/json"
             },
@@ -1792,6 +1846,11 @@ async function registrarFactura(imprimirDespues = false) {
         claveIdempotenciaFactura = generarClaveIdempotencia();
 
         limpiarFormularioFactura();
+        irAPasoWizard(1, false);
+        if (editando && !imprimirDespues) {
+            window.location.href = "historial-facturas.html";
+            return;
+        }
         await Promise.all([cargarProductos(), cargarHistorialFacturas()]);
 
         if (imprimirDespues && idFactura) {
@@ -1820,11 +1879,11 @@ async function registrarFactura(imprimirDespues = false) {
     }
 }
 
-guardarFactura.addEventListener("click", function() {
+guardarFactura?.addEventListener("click", function() {
     registrarFactura(false);
 });
 
-guardarEImprimirFactura.addEventListener("click", function() {
+guardarEImprimirFactura?.addEventListener("click", function() {
     registrarFactura(true);
 });
 
@@ -1839,7 +1898,7 @@ function limpiarFormularioFactura() {
     cerrarClienteRapido();
 
     facturaProductoBusqueda.value = "";
-    facturaCantidad.value = 1;
+    if (facturaCantidad) facturaCantidad.value = 1;
     infoProductoFactura.hidden = true;
     infoProductoFactura.innerHTML = "";
 
@@ -1863,6 +1922,8 @@ function limpiarFormularioFactura() {
     mostrarDetalleFactura();
     renderPagos();
     actualizarResumenPagos();
+    salirModoEdicionWizard();
+    renderizarCatalogoPOS();
 }
 
 async function confirmarLimpiarFormulario() {
@@ -1890,7 +1951,7 @@ async function confirmarLimpiarFormulario() {
     SouvanicUI.notificar("Formulario listo para una nueva factura.", "info");
 }
 
-btnLimpiarFactura.addEventListener("click", confirmarLimpiarFormulario);
+btnLimpiarFactura?.addEventListener("click", confirmarLimpiarFormulario);
 
 // ========================================
 // HISTORIAL
@@ -1972,6 +2033,7 @@ function actualizarFiltroResponsables() {
 }
 
 function aplicarFiltrosFacturas() {
+    if (!historialFacturasBody) return;
 
     const consulta = normalizarTexto(filtroFacturaBuscar.value);
     const desde = filtroFacturaDesde.value;
@@ -2156,14 +2218,21 @@ function renderHistorialFacturas() {
         }
 
         const celdaAcciones = document.createElement("td");
+        celdaAcciones.className = "col-chevron";
         const botonDetalle = document.createElement("button");
 
         botonDetalle.type = "button";
-        botonDetalle.textContent = "Ver detalle";
-        botonDetalle.className = "ver-detalle-factura";
+        botonDetalle.className = "socio-chevron-btn ver-detalle-factura";
         botonDetalle.dataset.id = factura.IdFactura;
+        botonDetalle.setAttribute("aria-label", `Ver opciones de factura ${factura.IdFactura}`);
+        botonDetalle.innerHTML = '<i class="bi bi-chevron-right" aria-hidden="true"></i>';
 
         celdaAcciones.appendChild(botonDetalle);
+
+        fila.className = "socio-fila";
+        fila.tabIndex = 0;
+        fila.setAttribute("role", "button");
+        fila.dataset.id = factura.IdFactura;
 
         fila.append(
             celdaNumero,
@@ -2249,20 +2318,29 @@ function renderPaginacionFacturas() {
     );
 }
 
-historialFacturasBody.addEventListener("click", function(event) {
+historialFacturasBody?.addEventListener("click", function(event) {
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila) return;
 
-    const boton = event.target.closest(".ver-detalle-factura");
-
-    if (!boton) return;
-
-    const idFactura = Number(boton.dataset.id);
-
+    const idFactura = Number(fila.dataset.id);
     if (!Number.isInteger(idFactura) || idFactura <= 0) return;
 
     abrirDetalleFactura(idFactura);
 });
 
-filtroFacturaBuscar.addEventListener("input", function() {
+historialFacturasBody?.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila) return;
+    event.preventDefault();
+
+    const idFactura = Number(fila.dataset.id);
+    if (!Number.isInteger(idFactura) || idFactura <= 0) return;
+
+    abrirDetalleFactura(idFactura);
+});
+
+filtroFacturaBuscar?.addEventListener("input", function() {
     paginaFacturas = 1;
     aplicarFiltrosFacturas();
 });
@@ -2275,13 +2353,13 @@ filtroFacturaBuscar.addEventListener("input", function() {
     filtroFacturaResponsable,
     filtroFacturaOrden
 ].forEach(control => {
-    control.addEventListener("change", function() {
+    control?.addEventListener("change", function() {
         paginaFacturas = 1;
         aplicarFiltrosFacturas();
     });
 });
 
-btnLimpiarFiltrosFacturas.addEventListener("click", function() {
+btnLimpiarFiltrosFacturas?.addEventListener("click", function() {
     filtroFacturaBuscar.value = "";
     filtroFacturaDesde.value = "";
     filtroFacturaHasta.value = "";
@@ -2293,7 +2371,7 @@ btnLimpiarFiltrosFacturas.addEventListener("click", function() {
     aplicarFiltrosFacturas();
 });
 
-btnExportarFacturas.addEventListener("click", function() {
+btnExportarFacturas?.addEventListener("click", function() {
 
     if (!window.ExportadorXLSX || typeof window.ExportadorXLSX.exportarFacturasXLSX !== "function") {
         SouvanicUI.notificar(
@@ -2500,6 +2578,13 @@ async function abrirDetalleFactura(idFactura) {
         metodoDetalleFactura.textContent = metodoPagoDetalle(pagos);
         pagadoDetalleFactura.textContent = formatearMoneda(pagado);
         saldoDetalleFactura.textContent = formatearMoneda(saldo > 0 ? saldo : 0);
+        renderizarVoucherFactura(
+            factura,
+            Array.isArray(datos.detalle) ? datos.detalle : [],
+            pagos,
+            pagado,
+            saldo
+        );
 
         if (esFacturaAnulada(factura)) {
 
@@ -2528,6 +2613,11 @@ async function abrirDetalleFactura(idFactura) {
         }
 
         renderDetalleProductos(datos.detalle);
+
+        const btnEditarDetalle = document.getElementById("btnEditarFacturaDetalle");
+        if (btnEditarDetalle) {
+            btnEditarDetalle.hidden = !(esAdminFacturacion && !esFacturaAnulada(factura));
+        }
         renderPagosDetalle(pagos);
 
         resumenTotalesDetalle.innerHTML = "";
@@ -2593,6 +2683,141 @@ document.addEventListener("keydown", function(event) {
     if (event.key === "Escape" && !modalDetalleFactura.hidden) {
         cerrarModalDetalle();
     }
+});
+
+function renderizarVoucherFactura(factura, detalle, pagos, totalPagado, saldo) {
+    if (!voucherFacturaContenedor) return;
+
+    document.getElementById("voucherNumero").textContent = `#${factura.IdFactura}`;
+    document.getElementById("voucherFecha").textContent = formatearFechaHora(factura.Fecha);
+    document.getElementById("voucherCliente").textContent = factura.Cliente || "Consumidor Final";
+    document.getElementById("voucherResponsable").textContent = factura.Responsable || "Sistema";
+
+    const anuladaEl = document.getElementById("voucherEstadoAnulada");
+    if (anuladaEl) {
+        anuladaEl.hidden = !esFacturaAnulada(factura);
+    }
+
+    const voucherItems = document.getElementById("voucherItems");
+    voucherItems.innerHTML = "";
+    detalle.forEach(item => {
+        const fila = document.createElement("div");
+        fila.className = "voucher-item-fila";
+
+        const linea1 = document.createElement("div");
+        linea1.className = "voucher-item-principal";
+
+        const nombre = document.createElement("span");
+        nombre.textContent = item.Producto || item.CodigoProducto;
+
+        const subtotal = document.createElement("strong");
+        subtotal.textContent = `C$ ${formatearMoneda(item.Subtotal)}`;
+
+        linea1.append(nombre, subtotal);
+
+        const linea2 = document.createElement("div");
+        linea2.className = "voucher-item-detalle";
+        const desc = Number(item.DescuentoAplicado || 0);
+        linea2.textContent = `${item.Cantidad} x C$ ${formatearMoneda(item.PrecioUnitario)}` +
+            (desc > 0 ? ` (-C$ ${formatearMoneda(desc)})` : "");
+
+        fila.append(linea1, linea2);
+        voucherItems.appendChild(fila);
+    });
+
+    const voucherTotales = document.getElementById("voucherTotales");
+    voucherTotales.innerHTML = "";
+
+    const agregarLineaTotal = (etiqueta, valor, esFinal = false) => {
+        const div = document.createElement("div");
+        if (esFinal) div.className = "voucher-total-final";
+        const s1 = document.createElement("span");
+        s1.textContent = etiqueta;
+        const s2 = document.createElement("span");
+        s2.textContent = valor;
+        div.append(s1, s2);
+        voucherTotales.appendChild(div);
+    };
+
+    agregarLineaTotal("Subtotal:", `C$ ${formatearMoneda(factura.Subtotal ?? factura.Total)}`);
+    if (Number(factura.Descuento || 0) > 0) {
+        agregarLineaTotal("Descuento:", `-C$ ${formatearMoneda(factura.Descuento)}`);
+    }
+    if (Number(factura.Impuesto || 0) > 0) {
+        agregarLineaTotal("Impuesto:", `C$ ${formatearMoneda(factura.Impuesto)}`);
+    }
+    agregarLineaTotal("TOTAL:", `C$ ${formatearMoneda(factura.Total)}`, true);
+
+    const voucherPagos = document.getElementById("voucherPagos");
+    voucherPagos.innerHTML = "";
+
+    const pagosActivos = pagos.filter(p => p.Estado !== "Anulado");
+    let vueltoTotal = 0;
+    pagosActivos.forEach(p => {
+        vueltoTotal += Number(p.Vuelto || 0);
+        const div = document.createElement("div");
+        const s1 = document.createElement("span");
+        s1.textContent = `${p.Metodo}${p.Banco ? ` (${p.Banco})` : ""}:`;
+        const s2 = document.createElement("span");
+        s2.textContent = `C$ ${formatearMoneda(p.Monto)}`;
+        div.append(s1, s2);
+        voucherPagos.appendChild(div);
+    });
+
+    const divPagado = document.createElement("div");
+    divPagado.innerHTML = `<span>Pagado:</span><strong>C$ ${formatearMoneda(totalPagado)}</strong>`;
+    voucherPagos.appendChild(divPagado);
+
+    if (vueltoTotal > 0.009) {
+        const divVuelto = document.createElement("div");
+        divVuelto.innerHTML = `<span>Vuelto:</span><span>C$ ${formatearMoneda(vueltoTotal)}</span>`;
+        voucherPagos.appendChild(divVuelto);
+    }
+
+    if (saldo > 0.009) {
+        const divSaldo = document.createElement("div");
+        divSaldo.innerHTML = `<span>Saldo pendiente:</span><strong>C$ ${formatearMoneda(saldo)}</strong>`;
+        voucherPagos.appendChild(divSaldo);
+    }
+}
+
+abrirModalVoucher?.addEventListener("click", function() {
+    if (!modalVoucherFactura) return;
+    modalVoucherFactura.hidden = false;
+});
+
+function cerrarVoucherModal() {
+    if (modalVoucherFactura) {
+        modalVoucherFactura.hidden = true;
+    }
+}
+
+cerrarModalVoucher?.addEventListener("click", cerrarVoucherModal);
+
+modalVoucherFactura?.addEventListener("click", function(event) {
+    if (event.target === modalVoucherFactura) {
+        cerrarVoucherModal();
+    }
+});
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape" && modalVoucherFactura && !modalVoucherFactura.hidden) {
+        cerrarVoucherModal();
+    }
+});
+
+imprimirVoucher?.addEventListener("click", function() {
+    if (!modalVoucherFactura || modalVoucherFactura.hidden || !voucherFacturaContenedor) return;
+    document.body.classList.add("imprimiendo-voucher");
+
+    const restaurar = () => {
+        document.body.classList.remove("imprimiendo-voucher");
+        window.removeEventListener("afterprint", restaurar);
+    };
+
+    window.addEventListener("afterprint", restaurar);
+    window.print();
+    window.setTimeout(restaurar, 1000);
 });
 
 imprimirFactura.addEventListener("click", function() {
@@ -2711,6 +2936,338 @@ confirmarAnulacionFactura.addEventListener("click", async function() {
     }
 });
 
+const posCatalogoGrid = document.getElementById("posCatalogoGrid");
+const posCategoriaFiltros = document.getElementById("posCategoriaFiltros");
+let posCategoriaActiva = "todas";
+
+function renderizarCatalogoPOS() {
+    if (!posCatalogoGrid) return;
+
+    const activos = productosDisponibles.filter(p => p.Activo !== false);
+
+    if (posCategoriaFiltros) {
+        const categorias = ["todas", ...new Set(activos.map(p => p.Categoria || "Sin categoría"))];
+        posCategoriaFiltros.innerHTML = "";
+        categorias.forEach(cat => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "socio-filtro-btn" + (posCategoriaActiva === cat ? " active" : "");
+            btn.textContent = cat === "todas" ? "Todas" : cat;
+            btn.addEventListener("click", () => {
+                posCategoriaActiva = cat;
+                renderizarCatalogoPOS();
+            });
+            posCategoriaFiltros.appendChild(btn);
+        });
+    }
+
+    const termino = (facturaProductoBusqueda?.value || "").trim().toLowerCase();
+    const filtrados = activos.filter(p => {
+        const cat = p.Categoria || "Sin categoría";
+        const coincideCat = posCategoriaActiva === "todas" || cat === posCategoriaActiva;
+        const coincideTexto = !termino ||
+            String(p.Nombre || "").toLowerCase().includes(termino) ||
+            String(p.CodigoProducto || "").toLowerCase().includes(termino);
+        return coincideCat && coincideTexto;
+    });
+
+    posCatalogoGrid.innerHTML = "";
+
+    if (filtrados.length === 0) {
+        const filaVacia = document.createElement("tr");
+        const celdaVacia = document.createElement("td");
+        celdaVacia.colSpan = 3;
+        celdaVacia.className = "texto-secundario";
+        celdaVacia.textContent = "No hay productos que coincidan con el filtro.";
+        filaVacia.appendChild(celdaVacia);
+        posCatalogoGrid.appendChild(filaVacia);
+        return;
+    }
+
+    filtrados.forEach(prod => {
+        const stock = Number(prod.Stock) || 0;
+        const enCarritoItem = detalleFactura.find(d => d.codigo === prod.CodigoProducto);
+        const cantCarrito = enCarritoItem ? Number(enCarritoItem.cantidad) : 0;
+        const deshabilitado = stock <= 0 || cantCarrito >= stock;
+
+        const fila = document.createElement("tr");
+        fila.className = "socio-fila pos-lista-fila" +
+            (cantCarrito > 0 ? " en-carrito" : "") +
+            (deshabilitado ? " agotado" : "");
+        fila.tabIndex = deshabilitado ? -1 : 0;
+        fila.setAttribute("role", "button");
+        fila.setAttribute("aria-label", `Agregar ${prod.Nombre} al carrito`);
+        fila.dataset.codigo = prod.CodigoProducto;
+
+        const celdaInfo = document.createElement("td");
+        const nomEl = document.createElement("span");
+        nomEl.className = "pos-lista-nombre";
+        nomEl.textContent = prod.Nombre;
+
+        if (cantCarrito > 0) {
+            const badge = document.createElement("span");
+            badge.className = "pos-lista-badge-carrito";
+            badge.textContent = `${cantCarrito}`;
+            nomEl.appendChild(badge);
+        }
+
+        const metaEl = document.createElement("span");
+        metaEl.className = "pos-lista-meta";
+        metaEl.textContent = `${prod.CodigoProducto} · ${prod.Categoria || "General"}`;
+
+        celdaInfo.append(nomEl, metaEl);
+
+        const celdaPrecio = document.createElement("td");
+        celdaPrecio.style.textAlign = "right";
+
+        const precioEl = document.createElement("span");
+        precioEl.className = "pos-lista-precio";
+        precioEl.textContent = `C$ ${formatearMoneda(prod.Precio)}`;
+
+        const stockEl = document.createElement("span");
+        stockEl.className = "pos-lista-stock" + (stock <= 0 ? " agotado" : "");
+        stockEl.textContent = stock <= 0 ? "Agotado" : `Disp: ${stock}`;
+
+        celdaPrecio.append(precioEl, stockEl);
+
+        const celdaChevron = document.createElement("td");
+        celdaChevron.className = "col-chevron";
+
+        const btnChevron = document.createElement("button");
+        btnChevron.type = "button";
+        btnChevron.className = "socio-chevron-btn";
+        btnChevron.disabled = deshabilitado;
+        btnChevron.setAttribute("aria-label", `Agregar ${prod.Nombre}`);
+        btnChevron.innerHTML = '<i class="bi bi-chevron-right" aria-hidden="true"></i>';
+
+        celdaChevron.appendChild(btnChevron);
+        fila.append(celdaInfo, celdaPrecio, celdaChevron);
+
+        const agregarAlClic = () => {
+            if (registrandoFactura || deshabilitado) return;
+            facturaProductoBusqueda.value = prod.CodigoProducto;
+            agregarProducto();
+            renderizarCatalogoPOS();
+        };
+
+        fila.addEventListener("click", agregarAlClic);
+        fila.addEventListener("keydown", e => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                agregarAlClic();
+            }
+        });
+
+        posCatalogoGrid.appendChild(fila);
+    });
+}
+
+facturaProductoBusqueda?.addEventListener("input", renderizarCatalogoPOS);
+
+document.addEventListener("click", function(event) {
+    if (event.target.closest("#detalleFacturaBody .quitar-linea-factura") ||
+        event.target.closest("#detalleFacturaBody input")) {
+        window.setTimeout(renderizarCatalogoPOS, 0);
+    }
+});
+
+// ========================================
+// WIZARD DE CREACIÓN / EDICIÓN Y VISTAS
+// ========================================
+
+let idFacturaEditando = null;
+let pasoWizardActual = 1;
+
+const vistaWizardFactura = document.getElementById("vistaWizardFactura");
+const seccionHistorialFacturas = document.getElementById("historial");
+const btnVerListadoFacturas = document.getElementById("btnVerListadoFacturas");
+const btnNuevaFacturaWizard = document.getElementById("btnNuevaFacturaWizard");
+const wizardModoEdicionBanner = document.getElementById("wizardModoEdicionBanner");
+const wizardModoEdicionTexto = document.getElementById("wizardModoEdicionTexto");
+const btnCancelarEdicionWizard = document.getElementById("btnCancelarEdicionWizard");
+const btnEditarFacturaDetalle = document.getElementById("btnEditarFacturaDetalle");
+
+function salirModoEdicionWizard() {
+    idFacturaEditando = null;
+    if (wizardModoEdicionBanner) wizardModoEdicionBanner.hidden = true;
+    if (guardarFactura) {
+        guardarFactura.innerHTML = '<i class="bi bi-check2-circle" aria-hidden="true"></i>';
+        guardarFactura.title = "Guardar factura";
+        guardarFactura.setAttribute("aria-label", "Guardar factura");
+    }
+}
+
+function mostrarVistaFacturacion(vista) {
+    const esListado = vista === "listado";
+    if (vistaWizardFactura) vistaWizardFactura.hidden = esListado;
+    if (seccionHistorialFacturas) seccionHistorialFacturas.hidden = !esListado;
+
+    if (btnVerListadoFacturas) {
+        btnVerListadoFacturas.classList.toggle("btn-primario", esListado);
+        btnVerListadoFacturas.classList.toggle("btn-secundario", !esListado);
+    }
+    if (btnNuevaFacturaWizard) {
+        btnNuevaFacturaWizard.classList.toggle("btn-primario", !esListado);
+        btnNuevaFacturaWizard.classList.toggle("btn-secundario", esListado);
+    }
+}
+
+function validarPasoWizard(pasoActual) {
+    if (pasoActual === 1) {
+        if (!facturaCliente.value) {
+            SouvanicUI.notificar("Seleccioná un cliente para continuar al paso de productos.", "warning");
+            facturaCliente.focus();
+            return false;
+        }
+    }
+    if (pasoActual === 2) {
+        if (detalleFactura.length === 0) {
+            SouvanicUI.notificar("Agregá al menos un producto antes de pasar a pagos.", "warning");
+            facturaProductoBusqueda?.focus();
+            return false;
+        }
+    }
+    return true;
+}
+
+function irAPasoWizard(nuevoPaso, validar = true) {
+    const destino = Math.max(1, Math.min(3, Number(nuevoPaso) || 1));
+
+    if (validar && destino > pasoWizardActual) {
+        for (let p = pasoWizardActual; p < destino; p++) {
+            if (!validarPasoWizard(p)) return;
+        }
+    }
+
+    pasoWizardActual = destino;
+
+    [1, 2, 3].forEach(num => {
+        const seccion = document.getElementById(`wizardPaso${num}`);
+        if (seccion) seccion.hidden = num !== destino;
+    });
+
+    document.querySelectorAll(".wizard-paso-btn").forEach(btn => {
+        const target = Number(btn.dataset.wizardTarget);
+        btn.classList.toggle("active", target === destino);
+        btn.classList.toggle("completado", target < destino);
+    });
+}
+
+function iniciarEdicionFactura(datosCompletos) {
+    if (!datosCompletos || !datosCompletos.factura) return;
+
+    const fac = datosCompletos.factura;
+    const items = Array.isArray(datosCompletos.detalle) ? datosCompletos.detalle : [];
+    const pagos = Array.isArray(datosCompletos.pagos) ? datosCompletos.pagos : [];
+
+    limpiarFormularioFactura();
+    idFacturaEditando = fac.IdFactura;
+
+    if (wizardModoEdicionBanner) wizardModoEdicionBanner.hidden = false;
+    if (wizardModoEdicionTexto) {
+        wizardModoEdicionTexto.textContent = `Editando factura N.° ${fac.IdFactura}`;
+    }
+    if (guardarFactura) {
+        guardarFactura.innerHTML = '<i class="bi bi-check2-circle" aria-hidden="true"></i>';
+        guardarFactura.title = "Guardar cambios";
+        guardarFactura.setAttribute("aria-label", "Guardar cambios");
+    }
+
+    // Precargar cliente
+    aplicarFiltroClientes("");
+    if (facturaCliente) {
+        facturaCliente.value = fac.IdCliente || "";
+    }
+
+    // Precargar productos
+    detalleFactura = items.map(it => {
+        const prodCatalogo = productosDisponibles.find(p => p.CodigoProducto === it.CodigoProducto);
+        const cantidad = Number(it.Cantidad) || 1;
+        const precio = Number(it.PrecioUnitario) || 0;
+        const lineaBruto = redondearMoneda(cantidad * precio);
+        const descMonto = Number(it.DescuentoAplicado || 0);
+        const descPorc = lineaBruto > 0 ? redondearMoneda((descMonto / lineaBruto) * 100) : 0;
+
+        return {
+            codigo: it.CodigoProducto,
+            nombre: it.Producto || prodCatalogo?.Nombre || it.CodigoProducto,
+            precio,
+            cantidad,
+            stockDisponible: (Number(prodCatalogo?.Stock) || 0) + cantidad,
+            descuentoPorcentaje: descPorc
+        };
+    });
+
+    // Precargar descuento general e impuesto
+    const subtotalBruto = detalleFactura.reduce((s, d) => s + d.precio * d.cantidad, 0);
+    const descProd = detalleFactura.reduce((s, d) => s + (d.precio * d.cantidad) * (d.descuentoPorcentaje / 100), 0);
+    const descGen = Math.max(0, redondearMoneda(Number(fac.Descuento || 0) - descProd));
+    descuentoGeneralFactura.value = descGen;
+
+    const baseImp = Math.max(0, redondearMoneda(subtotalBruto - descProd - descGen));
+    const impPorc = baseImp > 0 ? redondearMoneda((Number(fac.Impuesto || 0) / baseImp) * 100) : 0;
+    impuestoFactura.value = impPorc;
+
+    // Precargar pagos activos
+    pagosFactura = pagos
+        .filter(p => p.Estado !== "Anulado")
+        .map(p => ({
+            metodo: p.Metodo,
+            monto: Number(p.Monto),
+            montoRecibido: p.MontoRecibido !== null && p.MontoRecibido !== undefined ? Number(p.MontoRecibido) : null,
+            vuelto: p.Vuelto !== null && p.Vuelto !== undefined ? Number(p.Vuelto) : null,
+            banco: p.Banco || "",
+            bancoDestino: p.BancoDestino || "",
+            cuentaDestino: p.CuentaDestino || "",
+            referencia: p.Referencia || "",
+            observaciones: p.Observaciones || ""
+        }));
+
+    mostrarDetalleFactura();
+    renderPagos();
+    actualizarResumenPagos();
+
+    cerrarModalDetalle();
+    mostrarVistaFacturacion("wizard");
+    irAPasoWizard(1, false);
+}
+
+btnCancelarEdicionWizard?.addEventListener("click", () => {
+    limpiarFormularioFactura();
+    if (new URLSearchParams(window.location.search).has("editar")) {
+        window.location.href = "historial-facturas.html";
+        return;
+    }
+    irAPasoWizard(1, false);
+});
+
+btnEditarFacturaDetalle?.addEventListener("click", () => {
+    if (!facturaDetalleActual || !esAdminFacturacion) return;
+    if (!vistaWizardFactura) {
+        window.location.href = `facturas.html?editar=${encodeURIComponent(facturaDetalleActual.factura.IdFactura)}`;
+        return;
+    }
+    iniciarEdicionFactura(facturaDetalleActual);
+});
+
+document.querySelectorAll(".wizard-paso-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        irAPasoWizard(Number(btn.dataset.wizardTarget), true);
+    });
+});
+
+document.querySelectorAll("[data-wizard-next]").forEach(btn => {
+    btn.addEventListener("click", () => {
+        irAPasoWizard(Number(btn.dataset.wizardNext), true);
+    });
+});
+
+document.querySelectorAll("[data-wizard-prev]").forEach(btn => {
+    btn.addEventListener("click", () => {
+        irAPasoWizard(Number(btn.dataset.wizardPrev), false);
+    });
+});
+
 // ========================================
 // INICIALIZACIÓN
 // ========================================
@@ -2719,12 +3276,32 @@ configurarRolFacturacion();
 actualizarCamposPago();
 renderPagos();
 mostrarDetalleFactura();
+if (vistaWizardFactura) {
+    irAPasoWizard(1, false);
+}
 
 (async function iniciarFacturacion() {
-    await Promise.all([
-        cargarClientes(),
-        cargarProductos()
-    ]);
+    if (vistaWizardFactura) {
+        await Promise.all([
+            cargarClientes(),
+            cargarProductos()
+        ]);
 
-    await cargarHistorialFacturas();
+        const idEditarParam = Number(new URLSearchParams(window.location.search).get("editar"));
+        if (Number.isInteger(idEditarParam) && idEditarParam > 0 && esAdminFacturacion) {
+            try {
+                const resp = await fetchAutenticado(`/facturas/${encodeURIComponent(idEditarParam)}/completo`);
+                if (resp.ok) {
+                    const datosCompletos = await resp.json();
+                    iniciarEdicionFactura(datosCompletos);
+                }
+            } catch (e) {
+                console.error("Error al cargar factura para edición:", e);
+            }
+        }
+    }
+
+    if (historialFacturasBody) {
+        await cargarHistorialFacturas();
+    }
 })();

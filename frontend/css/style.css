@@ -5018,12 +5018,13 @@ body.modal-dashboard-abierto {
     }
 
     /* Solo se imprime el documento abierto; el resto no ocupa páginas */
-    body > *:not(#modalDetalleFactura):not(#modalComprobanteMovimiento) {
+    body > *:not(#modalDetalleFactura):not(#modalComprobanteMovimiento):not(#modalVoucherFactura) {
         display: none !important;
     }
 
     #modalDetalleFactura[hidden],
-    #modalComprobanteMovimiento[hidden] {
+    #modalComprobanteMovimiento[hidden],
+    #modalVoucherFactura[hidden] {
         display: none !important;
     }
 
@@ -7546,4 +7547,664 @@ th[aria-sort="descending"] .th-orden i {
 .socio-role-check input[type="checkbox"] {
     width: auto !important;
     margin: 0 !important;
+}
+
+/* ==========================================
+   SOCIOS: ESTILO LISTA CON CHEVRON (>) Y VENTANA DE OPCIONES
+   ========================================== */
+.tabla-socios-lista tbody tr.socio-fila {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.tabla-socios-lista tbody tr.socio-fila:hover,
+.tabla-socios-lista tbody tr.socio-fila:focus-visible {
+    background-color: #f1f5f9;
+    outline: none;
+}
+
+.col-chevron {
+    width: 44px;
+    text-align: right;
+}
+
+.socio-chevron-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+tr.socio-fila:hover .socio-chevron-btn {
+    background: #e2e8f0;
+    color: #1a4b77;
+    transform: translateX(2px);
+}
+
+.socio-opciones-modal {
+    max-width: 460px;
+}
+
+.socio-opciones-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 14px;
+}
+
+.socio-opciones-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #e0f2fe;
+    color: #1a4b77;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.socio-opciones-header h2 {
+    margin: 0 0 2px;
+    font-size: 1.15rem;
+}
+
+.socio-opciones-id {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.socio-opciones-datos {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 16px;
+}
+
+.socio-dato-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.88rem;
+}
+
+.socio-dato-label {
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.socio-dato-item strong {
+    color: #0f172a;
+    text-align: right;
+    word-break: break-word;
+}
+
+.socio-opciones-acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-socio-opcion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-socio-opcion span {
+    flex: 1;
+    text-align: left;
+}
+
+.btn-socio-opcion:hover {
+    background: #f8fafc;
+    border-color: #1a4b77;
+    color: #1a4b77;
+}
+
+.btn-socio-opcion.btn-socio-eliminar {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+.btn-socio-opcion.btn-socio-eliminar:hover {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+/* ==========================================
+   VOUCHER TÉRMICO (80MM) DE FACTURA
+   ========================================== */
+.voucher-80mm {
+    width: 302px;
+    max-width: 100%;
+    margin: 12px auto;
+    padding: 16px 14px;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px dashed #94a3b8;
+    border-radius: 6px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.voucher-encabezado {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.voucher-logo {
+    width: 44px;
+    height: auto;
+    margin-bottom: 4px;
+}
+
+.voucher-encabezado h3 {
+    margin: 0;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.voucher-encabezado p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    color: #475569;
+}
+
+.voucher-estado-anulada {
+    margin-top: 6px !important;
+    font-weight: 700;
+    color: #b91c1c !important;
+}
+
+.voucher-linea {
+    border-top: 1px dashed #64748b;
+    margin: 8px 0;
+}
+
+.voucher-meta div,
+.voucher-totales div,
+.voucher-pagos div {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.voucher-items-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.voucher-item-fila {
+    margin-bottom: 5px;
+}
+
+.voucher-item-principal {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.voucher-item-detalle {
+    font-size: 11px;
+    color: #475569;
+}
+
+.voucher-total-final {
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.voucher-pie {
+    text-align: center;
+    font-size: 11px;
+    color: #475569;
+    margin-top: 6px;
+}
+
+.voucher-pie p {
+    margin: 2px 0;
+}
+
+@media print {
+    @page voucher {
+        size: 80mm auto;
+        margin: 3mm;
+    }
+
+    body.imprimiendo-voucher > *:not(#modalVoucherFactura) {
+        display: none !important;
+    }
+
+    body.imprimiendo-voucher #modalVoucherFactura {
+        display: block !important;
+        position: static !important;
+        inset: auto !important;
+        width: auto !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        overflow: visible !important;
+        page: voucher;
+    }
+
+    body.imprimiendo-voucher .modal-voucher-barra {
+        display: none !important;
+    }
+
+    body.imprimiendo-voucher .modal-voucher-caja {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    body.imprimiendo-voucher #voucherFacturaContenedor,
+    body.imprimiendo-voucher #voucherFacturaContenedor * {
+        visibility: visible !important;
+    }
+
+    body.imprimiendo-voucher #voucherFacturaContenedor {
+        display: block !important;
+        position: static !important;
+        width: 74mm !important;
+        margin: 0 !important;
+        padding: 2mm !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+
+/* ==========================================
+   MODAL INDEPENDIENTE DE VOUCHER Y BOTONES SOLO ICONO
+   ========================================== */
+.modal-voucher-overlay {
+    z-index: 2500 !important;
+}
+
+.modal-voucher-caja {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px 16px 18px;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+    max-width: 95vw;
+    max-height: 92vh;
+    overflow-y: auto;
+}
+
+.modal-voucher-barra {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.acciones-modal-factura {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-icono-factura {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0 !important;
+    border-radius: 10px;
+    font-size: 1.1rem;
+}
+
+.btn-icono-cerrar {
+    background: #e2e8f0 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.btn-icono-cerrar:hover {
+    background: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+/* ==========================================
+   WIZARD DE FACTURACIÓN (CREACIÓN / EDICIÓN)
+   ========================================== */
+.wizard-factura-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.wizard-edicion-banner[hidden],
+.wizard-factura-contenedor[hidden],
+[data-wizard-paso][hidden] {
+    display: none !important;
+}
+
+.wizard-edicion-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 10px;
+    color: #92400e;
+}
+
+.wizard-stepper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.wizard-paso-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wizard-paso-btn.active {
+    background: #1a4b77;
+    border-color: #1a4b77;
+    color: #ffffff;
+}
+
+.wizard-paso-btn.completado {
+    border-color: #16a34a;
+    color: #166534;
+    background: #f0fdf4;
+}
+
+.wizard-paso-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.08);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.wizard-paso-btn.active .wizard-paso-num {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+}
+
+.wizard-navegacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* ==========================================
+   POS SPLIT LAYOUT (PRODUCTOS IZQUIERDA / CARRITO DERECHA)
+   ========================================== */
+.pos-split-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .pos-split-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pos-catalogo-panel,
+.pos-carrito-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.pos-catalogo-panel h3,
+.pos-carrito-panel h3 {
+    margin-top: 0;
+}
+
+.pos-categoria-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 12px;
+}
+
+.pos-productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    max-height: 460px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.pos-producto-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 10px 11px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pos-producto-card:hover:not(:disabled) {
+    border-color: #1a4b77;
+    box-shadow: 0 4px 12px rgba(26, 75, 119, 0.12);
+    transform: translateY(-1px);
+}
+
+.pos-producto-card:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: #f1f5f9;
+}
+
+.pos-producto-card.en-carrito {
+    border-color: #1a4b77;
+    background: #eff6ff;
+}
+
+.pos-card-categoria {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.pos-card-nombre {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.pos-card-codigo {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.pos-card-pie {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.pos-card-precio {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1a4b77;
+}
+
+.pos-card-stock {
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: #166534;
+}
+
+.pos-card-stock.agotado {
+    color: #b91c1c;
+}
+
+.pos-card-badge-carrito {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #1a4b77;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================
+   POS LISTA COMPACTA CON CHEVRON (>) ESTILO SOCIOS
+   ========================================== */
+.pos-lista-contenedor {
+    max-height: 360px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.pos-catalogo-lista {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pos-catalogo-lista tr.pos-lista-fila td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.84rem;
+    vertical-align: middle;
+}
+
+.pos-catalogo-lista tr.pos-lista-fila:last-child td {
+    border-bottom: none;
+}
+
+.pos-catalogo-lista tr.pos-lista-fila.en-carrito {
+    background: #eff6ff;
+}
+
+.pos-catalogo-lista tr.pos-lista-fila.agotado {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.pos-lista-nombre {
+    display: block;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.25;
+}
+
+.pos-lista-meta {
+    display: block;
+    font-size: 0.74rem;
+    color: #64748b;
+}
+
+.pos-lista-precio {
+    font-weight: 700;
+    color: #1a4b77;
+    white-space: nowrap;
+}
+
+.pos-lista-stock {
+    display: block;
+    font-size: 0.72rem;
+    color: #166534;
+}
+
+.pos-lista-stock.agotado {
+    color: #b91c1c;
+}
+
+.pos-lista-badge-carrito {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #1a4b77;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
 }

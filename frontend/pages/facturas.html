@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -52,7 +52,7 @@
             <i class="bi bi-file-earmark-plus"></i> Nueva Factura
         </a>
 
-        <a href="facturas.html#historial">
+        <a href="historial-facturas.html">
             <i class="bi bi-receipt"></i> Facturas
         </a>
 
@@ -103,7 +103,7 @@
                 </div>
 
                 <div class="module-header-acciones">
-                    <a class="btn-secundario" href="#historial">
+                    <a class="btn-secundario" href="historial-facturas.html">
                         <i class="bi bi-receipt" aria-hidden="true"></i>
                         Ver historial
                     </a>
@@ -112,11 +112,40 @@
             </div>
 
 
-            <!-- NUEVA FACTURA -->
+            <!-- CREACIÓN Y EDICIÓN (WIZARD) -->
 
-            <section class="factura-formulario" aria-labelledby="tituloNuevaFactura">
+            <div id="vistaWizardFactura" class="wizard-factura-contenedor">
 
-                <h2 id="tituloNuevaFactura">Nueva factura</h2>
+                <div id="wizardModoEdicionBanner" class="wizard-edicion-banner" hidden>
+                    <span>
+                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                        <strong id="wizardModoEdicionTexto">Editando factura</strong>
+                    </span>
+                    <button type="button" id="btnCancelarEdicionWizard" class="btn-cancelar">
+                        Cancelar edición
+                    </button>
+                </div>
+
+                <nav class="wizard-stepper" aria-label="Pasos de facturación">
+                    <button type="button" class="wizard-paso-btn active" data-wizard-target="1">
+                        <span class="wizard-paso-num">1</span>
+                        <span>Cliente</span>
+                    </button>
+                    <button type="button" class="wizard-paso-btn" data-wizard-target="2">
+                        <span class="wizard-paso-num">2</span>
+                        <span>Productos</span>
+                    </button>
+                    <button type="button" class="wizard-paso-btn" data-wizard-target="3">
+                        <span class="wizard-paso-num">3</span>
+                        <span>Pagos</span>
+                    </button>
+                </nav>
+
+            <!-- PASO 1: CLIENTE -->
+
+            <section class="factura-formulario" id="wizardPaso1" data-wizard-paso="1" aria-labelledby="tituloNuevaFactura">
+
+                <h2 id="tituloNuevaFactura">Paso 1 · Seleccionar cliente</h2>
 
                 <h3>
                     <i class="bi bi-person" aria-hidden="true"></i>
@@ -234,77 +263,86 @@
 
                 </form>
 
-                <h3>
-                    <i class="bi bi-box-seam" aria-hidden="true"></i>
-                    Productos
-                </h3>
-
-                <div class="factura-campos">
-
-                    <div class="campo-formulario campo-crece buscador-producto-contenedor">
-                        <label for="facturaProductoBusqueda">
-                            <i class="bi bi-search" aria-hidden="true"></i>
-                            Buscar producto por nombre o código
-                        </label>
-                        <div class="buscador-producto-input-wrap">
-                            <i class="bi bi-search icono-buscador-producto" aria-hidden="true"></i>
-                            <input
-                                type="text"
-                                id="facturaProductoBusqueda"
-                                placeholder="Escribí el nombre o código (ej. Hamaca, P001)..."
-                                autocomplete="off"
-                                role="combobox"
-                                aria-autocomplete="list"
-                                aria-expanded="false"
-                                aria-controls="menuDesplegableProductos"
-                            >
-                            <button
-                                type="button"
-                                id="btnLimpiarBusquedaProducto"
-                                class="btn-limpiar-busqueda"
-                                title="Limpiar búsqueda"
-                                aria-label="Limpiar búsqueda"
-                                hidden
-                            >
-                                <i class="bi bi-x-lg" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                        <div id="menuDesplegableProductos" class="menu-desplegable-productos" role="listbox" hidden></div>
-                        <datalist id="listaProductosFactura" hidden></datalist>
-                    </div>
-
-                    <div class="campo-formulario campo-cantidad">
-                        <label for="facturaCantidad">Cantidad</label>
-                        <input
-                            type="number"
-                            id="facturaCantidad"
-                            min="1"
-                            step="1"
-                            value="1"
-                        >
-                    </div>
-
-                    <button
-                        type="button"
-                        id="agregarProductoFactura"
-                        class="btn-primario btn-auto"
-                    >
-                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                        Agregar
+                <div class="wizard-navegacion">
+                    <span></span>
+                    <button type="button" class="btn-primario" data-wizard-next="2">
+                        Siguiente: Productos
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
                     </button>
-
                 </div>
-
-                <div id="infoProductoFactura" class="factura-producto-info" hidden></div>
 
             </section>
 
+            <!-- PASO 2: PRODUCTOS Y TOTALES (POS SPLIT) -->
 
-            <!-- DETALLE, TOTALES Y PAGOS -->
+            <section class="factura-formulario" id="wizardPaso2" data-wizard-paso="2" hidden>
 
-            <section class="factura-detalle" aria-labelledby="tituloDetalleFactura">
+                <h2>Paso 2 · Productos y carrito</h2>
 
-                <h2 id="tituloDetalleFactura">Detalle de la factura</h2>
+                <div class="pos-split-grid">
+
+                    <!-- IZQUIERDA: CATÁLOGO DE PRODUCTOS -->
+                    <div class="pos-catalogo-panel">
+                        <h3>
+                            <i class="bi bi-grid" aria-hidden="true"></i>
+                            Productos
+                        </h3>
+
+                        <div class="factura-campos">
+
+                            <div class="campo-formulario campo-crece buscador-producto-contenedor">
+                                <label for="facturaProductoBusqueda">
+                                    <i class="bi bi-search" aria-hidden="true"></i>
+                                    Buscar producto
+                                </label>
+                                <div class="buscador-producto-input-wrap">
+                                    <i class="bi bi-search icono-buscador-producto" aria-hidden="true"></i>
+                                    <input
+                                        type="text"
+                                        id="facturaProductoBusqueda"
+                                        placeholder="Nombre o código (ej. Taza, SOUV-001)..."
+                                        autocomplete="off"
+                                        role="combobox"
+                                        aria-autocomplete="list"
+                                        aria-expanded="false"
+                                        aria-controls="menuDesplegableProductos"
+                                    >
+                                    <button
+                                        type="button"
+                                        id="btnLimpiarBusquedaProducto"
+                                        class="btn-limpiar-busqueda"
+                                        title="Limpiar búsqueda"
+                                        aria-label="Limpiar búsqueda"
+                                        hidden
+                                    >
+                                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <div id="menuDesplegableProductos" class="menu-desplegable-productos" role="listbox" hidden></div>
+                                <datalist id="listaProductosFactura" hidden></datalist>
+                            </div>
+
+                        </div>
+
+                        <div id="infoProductoFactura" class="factura-producto-info" hidden></div>
+
+                        <div class="pos-categoria-filtros" id="posCategoriaFiltros" role="group" aria-label="Filtrar por categoría"></div>
+
+                        <div class="pos-lista-contenedor">
+                            <table class="tabla-socios-lista pos-catalogo-lista">
+                                <tbody id="posCatalogoGrid" aria-live="polite"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- DERECHA: CARRITO DE VENTA -->
+                    <div class="pos-carrito-panel">
+                        <div class="factura-detalle-bloque" aria-labelledby="tituloDetalleFactura">
+
+                            <h3 id="tituloDetalleFactura">
+                                <i class="bi bi-cart3" aria-hidden="true"></i>
+                                Carrito de venta
+                            </h3>
 
                 <div class="tabla-contenedor-responsiva">
                     <table class="tabla-detalle-factura">
@@ -385,9 +423,31 @@
 
                 </div>
 
+                </div>
+
+                                    </div> <!-- /.pos-carrito-panel -->
+                </div> <!-- /.pos-split-grid -->
+
+                <div class="wizard-navegacion">
+                    <button type="button" class="btn-secundario" data-wizard-prev="1">
+                        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                        Anterior: Cliente
+                    </button>
+                    <button type="button" class="btn-primario" data-wizard-next="3">
+                        Siguiente: Pagos
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- PASO 3: PAGOS Y CONFIRMACIÓN -->
+
+            <section class="factura-detalle" id="wizardPaso3" data-wizard-paso="3" hidden>
+
                 <h2 class="subtitulo-factura">
                     <i class="bi bi-credit-card" aria-hidden="true"></i>
-                    Pagos
+                    Paso 3 · Pagos y confirmación
                 </h2>
 
                 <p class="factura-ayuda">
@@ -494,9 +554,14 @@
                     </div>
 
                     <div class="campo-formulario campo-accion">
-                        <button type="button" id="btnAgregarPago" class="btn-secundario">
+                        <button
+                            type="button"
+                            id="btnAgregarPago"
+                            class="btn-secundario btn-icono-factura"
+                            title="Agregar pago"
+                            aria-label="Agregar pago"
+                        >
                             <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                            Agregar pago
                         </button>
                     </div>
 
@@ -530,145 +595,52 @@
 
                 <div class="factura-barra-acciones">
 
-                    <button type="button" id="guardarFactura" class="btn-primario">
+                    <button
+                        type="button"
+                        id="guardarFactura"
+                        class="btn-primario btn-icono-factura"
+                        title="Guardar factura"
+                        aria-label="Guardar factura"
+                    >
                         <i class="bi bi-check2-circle" aria-hidden="true"></i>
-                        Guardar factura
                     </button>
 
-                    <button type="button" id="guardarEImprimirFactura" class="btn-secundario">
+                    <button
+                        type="button"
+                        id="guardarEImprimirFactura"
+                        class="btn-secundario btn-icono-factura"
+                        title="Guardar e imprimir"
+                        aria-label="Guardar e imprimir"
+                    >
                         <i class="bi bi-printer" aria-hidden="true"></i>
-                        Guardar e imprimir
                     </button>
 
-                    <button type="button" id="btnLimpiarFactura" class="btn-cancelar">
+                    <button
+                        type="button"
+                        id="btnLimpiarFactura"
+                        class="btn-cancelar btn-icono-factura"
+                        title="Limpiar formulario"
+                        aria-label="Limpiar formulario"
+                    >
                         <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
-                        Limpiar formulario
                     </button>
 
+                </div>
+
+                <div class="wizard-navegacion">
+                    <button type="button" class="btn-secundario" data-wizard-prev="2">
+                        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                        Anterior: Productos
+                    </button>
+                    <span></span>
                 </div>
 
             </section>
 
-
-            <!-- HISTORIAL DE FACTURAS -->
-
-            <section class="historial-facturas" id="historial" aria-labelledby="tituloHistorialFacturas">
-
-                <div class="historial-cabecera">
-
-                    <div>
-                        <h2 id="tituloHistorialFacturas">Historial de facturas</h2>
-                        <p class="module-contador" id="contadorFacturas" aria-live="polite">
-                            Cargando facturas...
-                        </p>
-                    </div>
-
-                    <button type="button" id="btnExportarFacturas" class="btn-secundario">
-                        <i class="bi bi-file-earmark-excel" aria-hidden="true"></i>
-                        Exportar XLSX
-                    </button>
-
-                </div>
-
-                <div class="historial-filtros">
-
-                    <div class="campo-filtro campo-busqueda">
-                        <label for="filtroFacturaBuscar">Buscar</label>
-                        <input
-                            type="search"
-                            id="filtroFacturaBuscar"
-                            placeholder="N.º de factura o cliente"
-                            autocomplete="off"
-                        >
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaDesde">Desde</label>
-                        <input type="date" id="filtroFacturaDesde">
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaHasta">Hasta</label>
-                        <input type="date" id="filtroFacturaHasta">
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaEstado">Estado</label>
-                        <select id="filtroFacturaEstado">
-                            <option value="">Todos</option>
-                            <option value="Registrada">Registrada</option>
-                            <option value="Pagada">Pagada</option>
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="Anulada">Anulada</option>
-                        </select>
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaMetodo">Método de pago</label>
-                        <select id="filtroFacturaMetodo">
-                            <option value="">Todos</option>
-                            <option value="Efectivo">Efectivo</option>
-                            <option value="Tarjeta">Tarjeta</option>
-                            <option value="Transferencia">Transferencia</option>
-                        </select>
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaResponsable">Responsable</label>
-                        <select id="filtroFacturaResponsable">
-                            <option value="">Todos</option>
-                        </select>
-                    </div>
-
-                    <div class="campo-filtro">
-                        <label for="filtroFacturaOrden">Orden</label>
-                        <select id="filtroFacturaOrden">
-                            <option value="recientes">Más recientes</option>
-                            <option value="antiguas">Más antiguas</option>
-                            <option value="total-desc">Total mayor</option>
-                            <option value="total-asc">Total menor</option>
-                        </select>
-                    </div>
-
-                    <button type="button" id="btnLimpiarFiltrosFacturas" class="btn-cancelar">
-                        <i class="bi bi-funnel" aria-hidden="true"></i>
-                        Limpiar filtros
-                    </button>
-
-                </div>
-
-                <div class="tabla-contenedor-responsiva">
-                    <table class="tabla-historial-facturas">
-                        <thead>
-                            <tr>
-                                <th>N.º Factura</th>
-                                <th>Fecha</th>
-                                <th>Cliente</th>
-                                <th>Responsable</th>
-                                <th>Total</th>
-                                <th>Estado</th>
-                                <th>Saldo</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="historialFacturasBody">
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="paginacion-facturas" id="paginacionFacturas"></div>
-
-            </section>
-
-        </div>
-
-    </main>
-
-</div>
+            </div> <!-- /#vistaWizardFactura -->
 
 
-<!-- MODAL DE DETALLE DE FACTURA -->
+            <!-- MODAL DE DETALLE DE FACTURA -->
 
 <section
     id="modalDetalleFactura"
@@ -854,15 +826,106 @@
         <!-- BOTONES INFERIORES -->
         <div class="acciones-modal-factura">
 
-            <button type="button" id="imprimirFactura">
-                <i class="bi bi-printer"></i>
-                Imprimir factura
+            <button
+                type="button"
+                id="btnEditarFacturaDetalle"
+                class="btn-icono-factura"
+                title="Editar factura"
+                aria-label="Editar factura"
+                hidden
+            >
+                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                id="abrirModalVoucher"
+                class="btn-icono-factura"
+                title="Ver Voucher (80mm)"
+                aria-label="Ver Voucher (80mm)"
+            >
+                <i class="bi bi-receipt" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                id="imprimirFactura"
+                class="btn-icono-factura"
+                title="Imprimir factura"
+                aria-label="Imprimir factura"
+            >
+                <i class="bi bi-printer" aria-hidden="true"></i>
             </button>
 
         </div>
 
     </div>
 
+</section>
+
+<!-- MODAL INDEPENDIENTE DE VOUCHER 80MM -->
+<section
+    class="modal-factura modal-voucher-overlay"
+    id="modalVoucherFactura"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Voucher de factura 80mm"
+    hidden
+>
+    <div class="modal-voucher-caja">
+        <div class="modal-voucher-barra">
+            <button
+                type="button"
+                id="imprimirVoucher"
+                class="btn-icono-factura"
+                title="Imprimir voucher"
+                aria-label="Imprimir voucher"
+            >
+                <i class="bi bi-printer" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                id="cerrarModalVoucher"
+                class="btn-icono-factura btn-icono-cerrar"
+                title="Cerrar voucher"
+                aria-label="Cerrar voucher"
+            >
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div id="voucherFacturaContenedor" class="voucher-80mm">
+            <div class="voucher-encabezado">
+                <img src="../assets/Logo.png" alt="SOUVANIC" class="voucher-logo">
+                <h3>NICARAGUA SOUVENIR</h3>
+                <p>SOUVANIC · Comprobante de Venta</p>
+                <p class="voucher-estado-anulada" id="voucherEstadoAnulada" hidden>*** FACTURA ANULADA ***</p>
+            </div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-meta">
+                <div><span>Factura:</span><strong id="voucherNumero">-</strong></div>
+                <div><span>Fecha:</span><span id="voucherFecha">-</span></div>
+                <div><span>Cliente:</span><span id="voucherCliente">-</span></div>
+                <div><span>Cajero:</span><span id="voucherResponsable">-</span></div>
+            </div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-items-header">
+                <span>DESCRIPCIÓN</span>
+                <span>TOTAL</span>
+            </div>
+            <div class="voucher-items" id="voucherItems"></div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-totales" id="voucherTotales"></div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-pagos" id="voucherPagos"></div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-pie">
+                <p>¡Gracias por su compra!</p>
+                <p>Registrado en SOUVANIC</p>
+            </div>
+        </div>
+    </div>
 </section>
 
 

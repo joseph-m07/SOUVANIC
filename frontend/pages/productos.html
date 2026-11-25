@@ -1,4 +1,4 @@
-﻿
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -52,7 +52,7 @@
             <i class="bi bi-file-earmark-plus"></i> Nueva Factura
         </a>
 
-        <a href="facturas.html#historial">
+        <a href="historial-facturas.html">
             <i class="bi bi-receipt"></i> Facturas
         </a>
 
@@ -134,7 +134,7 @@
 
                 <div class="tabla-contenedor-responsiva">
 
-                    <table>
+                    <table class="tabla-socios-lista">
 
                         <thead>
 
@@ -164,7 +164,7 @@
                                         Estado <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
                                     </button>
                                 </th>
-                                <th>Acciones</th>
+                                <th class="col-chevron" aria-label="Opciones"></th>
                             </tr>
 
                         </thead>
@@ -200,14 +200,28 @@
 
     </div>
 
-    <!-- Detalle de producto (solo lectura) -->
-    <div class="modal" id="modalDetalleProducto">
-        <div class="modal-content detalle-producto-contenido">
-            <button class="close-modal" type="button" id="cerrarDetalleProducto">×</button>
+    <!-- Ventana de detalle y opciones de producto -->
+    <div class="modal" id="modalDetalleProducto" role="dialog" aria-modal="true" aria-labelledby="detalleProductoTitulo">
+        <div class="modal-content detalle-producto-contenido socio-opciones-modal">
+            <button class="close-modal" type="button" id="cerrarDetalleProducto" aria-label="Cerrar">×</button>
             <h2 id="detalleProductoTitulo">Detalle del producto</h2>
             <div class="detalle-producto-grid" id="detalleProductoContenido"></div>
-            <div class="modal-buttons">
-                <button type="button" class="cancel-btn" id="volverDetalleProducto">Cerrar</button>
+            <div class="socio-opciones-acciones" id="productoOpcionesAcciones" style="margin-top: 16px;">
+                <button type="button" class="btn-socio-opcion" id="btnProductoOpcionEditar">
+                    <i class="bi bi-pencil-square"></i>
+                    <span>Editar producto</span>
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button type="button" class="btn-socio-opcion" id="btnProductoOpcionAlternar">
+                    <i class="bi bi-toggle-on"></i>
+                    <span id="textoProductoOpcionAlternar">Desactivar producto</span>
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button type="button" class="btn-socio-opcion btn-socio-eliminar" id="btnProductoOpcionEliminar">
+                    <i class="bi bi-trash3"></i>
+                    <span>Eliminar producto</span>
+                    <i class="bi bi-chevron-right"></i>
+                </button>
             </div>
         </div>
     </div>

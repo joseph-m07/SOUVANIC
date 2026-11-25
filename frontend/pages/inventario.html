@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -52,7 +52,7 @@
             <i class="bi bi-file-earmark-plus"></i> Nueva Factura
         </a>
 
-        <a href="facturas.html#historial">
+        <a href="historial-facturas.html">
             <i class="bi bi-receipt"></i> Facturas
         </a>
 
@@ -300,7 +300,7 @@
 
             <div class="tabla-contenedor-responsiva">
 
-                <table class="tabla-moderna tabla-inventario">
+                <table class="tabla-moderna tabla-inventario tabla-socios-lista">
 
                     <thead>
                         <tr>
@@ -310,7 +310,7 @@
                             <th><button type="button" class="th-orden" data-orden-inventario="stock">Disponible <i class="bi bi-arrow-down-up" aria-hidden="true"></i></button></th>
                             <th><button type="button" class="th-orden" data-orden-inventario="minimo">Stock mínimo <i class="bi bi-arrow-down-up" aria-hidden="true"></i></button></th>
                             <th><button type="button" class="th-orden" data-orden-inventario="estado">Estado <i class="bi bi-arrow-down-up" aria-hidden="true"></i></button></th>
-                            <th>Acciones</th>
+                            <th class="col-chevron" aria-label="Opciones"></th>
                         </tr>
                     </thead>
 
@@ -393,7 +393,7 @@
 
             <div class="tabla-contenedor-responsiva">
 
-                <table class="tabla-moderna tabla-historial">
+                <table class="tabla-moderna tabla-historial tabla-socios-lista">
                     <thead>
                         <tr>
                             <th>Fecha</th>
@@ -404,7 +404,7 @@
                             <th>Responsable</th>
                             <th>Motivo</th>
                             <th>Factura</th>
-                            <th>Comprobante</th>
+                            <th class="col-chevron" aria-label="Comprobante"></th>
                         </tr>
                     </thead>
 
@@ -713,6 +713,49 @@
             </button>
         </div>
     </div>
+</div>
+
+<!-- Ventana de opciones de producto en inventario -->
+<div class="modal" id="inventarioOpcionesModal" role="dialog" aria-modal="true" aria-labelledby="inventarioOpcionesNombre">
+    <div class="modal-content socio-opciones-modal">
+        <button class="close-modal" type="button" id="cerrarInventarioOpciones" aria-label="Cerrar">&times;</button>
+        <div class="socio-opciones-header">
+            <div class="socio-opciones-avatar" aria-hidden="true">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div>
+                <h2 id="inventarioOpcionesNombre">Producto</h2>
+                <p class="socio-opciones-id" id="inventarioOpcionesCodigo"></p>
+            </div>
+        </div>
+        <div class="socio-opciones-datos">
+            <div class="socio-dato-item">
+                <span class="socio-dato-label"><i class="bi bi-tag"></i> Categoría</span>
+                <strong id="inventarioOpcionesCategoria">-</strong>
+            </div>
+            <div class="socio-dato-item">
+                <span class="socio-dato-label"><i class="bi bi-boxes"></i> Stock disponible</span>
+                <strong id="inventarioOpcionesStock">-</strong>
+            </div>
+            <div class="socio-dato-item">
+                <span class="socio-dato-label"><i class="bi bi-sliders"></i> Stock mínimo</span>
+                <strong id="inventarioOpcionesMinimo">-</strong>
+            </div>
+        </div>
+        <div class="socio-opciones-acciones" id="inventarioOpcionesAcciones">
+            <button type="button" class="btn-socio-opcion" id="btnInventarioOpcionMovimiento">
+                <i class="bi bi-arrow-left-right"></i>
+                <span>Registrar movimiento</span>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            <button type="button" class="btn-socio-opcion" id="btnInventarioOpcionMinimo">
+                <i class="bi bi-sliders"></i>
+                <span>Configurar stock mínimo</span>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
 </div>
 
 

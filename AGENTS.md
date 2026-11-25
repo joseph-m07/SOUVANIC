@@ -36,6 +36,7 @@ Este archivo define las reglas y convenciones obligatorias para cualquier agente
    - Usar `fetchAutenticado(ruta, opciones)` de `frontend/js/core/auth.js` para llamadas al API.
    - Usar `SouvanicUI.notificar(...)` y `SouvanicUI.confirmar(...)` en lugar de `alert()` o `confirm()`.
    - Mantener los estados de tabla con `mostrarEstadoTabla` y `actualizarSinResultados` (`ui-estados.js`).
+   - **Estándar de Listados**: Todo listado principal (Socios, Productos, Historial de Facturas, Inventario) debe usar filas estilo lista (`tr.socio-fila` dentro de `table.tabla-socios-lista`) con un único indicador **`>`** (`.socio-chevron-btn`) en la última columna (`.col-chevron`) sin botones inline repetidos; al hacer clic en la fila o en `>`, se abre una ventana modal de detalle y opciones (`.socio-opciones-modal`).
 
 ---
 

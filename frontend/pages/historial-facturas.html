@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <script>
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+            window.location.replace("index.html");
+        }
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Historial de Facturas | SOUVANIC</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- MENÚ LATERAL -->
+
+    <aside class="sidebar">
+
+    <div class="sidebar-brand">
+        <img src="../assets/Logo.png" alt="Logotipo Nicaragua Souvenir">
+        <h2>SOUVANIC</h2>
+    </div>
+
+    <nav>
+        <a href="dashboard.html">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+
+        <a href="productos.html">
+            <i class="bi bi-box-seam"></i> Productos
+        </a>
+
+        <a href="clientes.html">
+            <i class="bi bi-people"></i> Socios
+        </a>
+
+        <a href="facturas.html">
+            <i class="bi bi-file-earmark-plus"></i> Nueva Factura
+        </a>
+
+        <a href="historial-facturas.html">
+            <i class="bi bi-receipt"></i> Facturas
+        </a>
+
+        <a href="inventario.html">
+            <i class="bi bi-boxes"></i> Inventario
+        </a>
+
+        <div class="sidebar-bottom"></div>
+    </nav>
+
+    <div class="decoracion-momotombo" aria-hidden="true">
+        <svg viewBox="0 0 250 120" xmlns="http://www.w3.org/2000/svg">
+            <path d="
+                M 0 120
+                L 20 108
+                L 45 100
+                L 65 88
+                L 83 72
+                L 101 51
+                L 115 31
+                L 125 20
+                L 136 32
+                L 151 53
+                L 169 75
+                L 190 91
+                L 215 103
+                L 250 115
+                L 250 120
+                Z
+            " fill="currentColor"/>
+        </svg>
+    </div>
+
+    </aside>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+        <div class="facturas-container">
+            <div class="module-header">
+                <div class="module-header-info">
+                    <h1>Historial de facturas</h1>
+                    <p>Consultá, filtrá, editá, imprimí en formato carta o voucher 80mm y exportá tus ventas.</p>
+                </div>
+                <div class="module-header-acciones">
+                    <a class="btn-primario" href="facturas.html">
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                        Nueva factura
+                    </a>
+                </div>
+            </div>
+<!-- HISTORIAL DE FACTURAS -->
+
+            <section class="historial-facturas" id="historial" aria-labelledby="tituloHistorialFacturas">
+
+                <div class="historial-cabecera">
+
+                    <div>
+                        <h2 id="tituloHistorialFacturas">Historial de facturas</h2>
+                        <p class="module-contador" id="contadorFacturas" aria-live="polite">
+                            Cargando facturas...
+                        </p>
+                    </div>
+
+                    <button type="button" id="btnExportarFacturas" class="btn-secundario">
+                        <i class="bi bi-file-earmark-excel" aria-hidden="true"></i>
+                        Exportar XLSX
+                    </button>
+
+                </div>
+
+                <div class="historial-filtros">
+
+                    <div class="campo-filtro campo-busqueda">
+                        <label for="filtroFacturaBuscar">Buscar</label>
+                        <input
+                            type="search"
+                            id="filtroFacturaBuscar"
+                            placeholder="N.º de factura o cliente"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="filtroFacturaDesde">Desde</label>
+                        <input type="date" id="filtroFacturaDesde">
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="filtroFacturaHasta">Hasta</label>
+                        <input type="date" id="filtroFacturaHasta">
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="filtroFacturaEstado">Estado</label>
+                        <select id="filtroFacturaEstado">
+                            <option value="">Todos</option>
+                            <option value="Registrada">Registrada</option>
+                            <option value="Pagada">Pagada</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Anulada">Anulada</option>
+                        </select>
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="filtroFacturaMetodo">Método de pago</label>
+                        <select id="filtroFacturaMetodo">
+                            <option value="">Todos</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="filtroFacturaResponsable">Responsable</label>
+                        <select id="filtroFacturaResponsable">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="filtroFacturaOrden">Orden</label>
+                        <select id="filtroFacturaOrden">
+                            <option value="recientes">Más recientes</option>
+                            <option value="antiguas">Más antiguas</option>
+                            <option value="total-desc">Total mayor</option>
+                            <option value="total-asc">Total menor</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="btnLimpiarFiltrosFacturas" class="btn-cancelar">
+                        <i class="bi bi-funnel" aria-hidden="true"></i>
+                        Limpiar filtros
+                    </button>
+
+                </div>
+
+                <div class="tabla-contenedor-responsiva">
+                    <table class="tabla-historial-facturas tabla-socios-lista">
+                        <thead>
+                            <tr>
+                                <th>N.º Factura</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Responsable</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Saldo</th>
+                                <th class="col-chevron" aria-label="Opciones"></th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="historialFacturasBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="paginacion-facturas" id="paginacionFacturas"></div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+        </div>
+    </main>
+</div>
+<!-- MODAL DE DETALLE DE FACTURA -->
+
+<section
+    id="modalDetalleFactura"
+    class="modal-factura"
+    hidden
+>
+
+    <div class="modal-factura-contenido" role="document">
+
+        <div class="modal-factura-encabezado">
+            <h2>Detalle de factura</h2>
+
+            <button type="button" id="cerrarDetalleFactura">
+                Cerrar
+            </button>
+        </div>
+
+
+        <!-- ENCABEZADO DEL COMPROBANTE -->
+        <div class="encabezado-comprobante">
+
+            <img
+                src="../assets/Logo.png"
+                alt="Logotipo Nicaragua Souvenir"
+                class="logo-factura"
+            >
+
+            <div class="encabezado-comprobante-info">
+                <h1>Nicaragua Souvenir</h1>
+                <p class="frase-institucional">
+                    Artesanía y souvenirs de Nicaragua.
+                </p>
+            </div>
+
+            <div class="encabezado-comprobante-doc">
+                <span>Comprobante de venta</span>
+            </div>
+
+        </div>
+
+
+        <!-- INFORMACIÓN -->
+        <div class="detalle-factura-titulo">
+            <h3 id="numeroFacturaDetalle"></h3>
+            <span id="estadoDetalleFactura" class="status"></span>
+        </div>
+
+        <div class="informacion-comprobante">
+
+            <p>
+                <strong>Cliente:</strong>
+                <span id="clienteDetalleFactura"></span>
+            </p>
+
+            <p>
+                <strong>Fecha:</strong>
+                <span id="fechaDetalleFactura"></span>
+            </p>
+
+            <p>
+                <strong>Responsable:</strong>
+                <span id="responsableDetalleFactura"></span>
+            </p>
+
+            <p>
+                <strong>Método de pago:</strong>
+                <span id="metodoDetalleFactura"></span>
+            </p>
+
+            <p>
+                <strong>Pagado:</strong>
+                C$ <span id="pagadoDetalleFactura">0.00</span>
+            </p>
+
+            <p>
+                <strong>Saldo:</strong>
+                C$ <span id="saldoDetalleFactura">0.00</span>
+            </p>
+
+        </div>
+
+        <div id="anulacionDetalleFactura" class="detalle-anulacion" hidden>
+            <strong>Factura anulada</strong>
+            <p id="textoAnulacionDetalle"></p>
+        </div>
+
+
+        <!-- PRODUCTOS -->
+        <div class="tabla-contenedor-responsiva">
+            <table class="tabla-modal-factura">
+                <thead>
+                    <tr>
+                        <th class="col-codigo">Código</th>
+                        <th class="col-producto">Producto</th>
+                        <th class="col-cantidad text-derecha">Cantidad</th>
+                        <th class="col-precio text-derecha">Precio</th>
+                        <th class="col-descuento text-derecha">Desc.</th>
+                        <th class="col-subtotal text-derecha">Subtotal</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tablaDetalleFactura">
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- TOTALES -->
+        <div class="detalle-resumen-totales" id="resumenTotalesDetalle"></div>
+
+
+        <!-- PAGOS -->
+        <h4 class="detalle-subtitulo">Pagos registrados</h4>
+
+        <div class="tabla-contenedor-responsiva">
+            <table class="tabla-modal-factura tabla-pagos-detalle">
+                <thead>
+                    <tr>
+                        <th>Método</th>
+                        <th>Monto</th>
+                        <th>Banco / Referencia</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+
+                <tbody id="pagosDetalleFactura">
+                </tbody>
+            </table>
+        </div>
+
+        <p class="comprobante-leyenda">
+            Registrado en SOUVANIC · Sistema de facturación
+        </p>
+
+
+        <!-- ANULACIÓN (SOLO ADMINISTRADOR) -->
+        <div class="bloque-anulacion" id="bloqueAnularFactura" hidden>
+
+            <h4>
+                <i class="bi bi-x-octagon" aria-hidden="true"></i>
+                Anular factura
+            </h4>
+
+            <p>
+                La anulación conserva el historial, restaura el stock con movimientos
+                compensatorios y deja los pagos marcados para revisión. No elimina registros
+                ni asume devoluciones bancarias automáticas.
+            </p>
+
+            <div class="confirmacion-anulacion" id="confirmacionAnulacion" hidden>
+
+                <div class="campo-formulario">
+                    <label for="motivoAnulacionFactura">Motivo de anulación (obligatorio)</label>
+                    <input
+                        type="text"
+                        id="motivoAnulacionFactura"
+                        maxlength="255"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="acciones-anulacion">
+                    <button type="button" id="cancelarAnulacionFactura" class="btn-cancelar">
+                        Cancelar
+                    </button>
+
+                    <button type="button" id="confirmarAnulacionFactura" class="btn-peligro">
+                        Confirmar anulación
+                    </button>
+                </div>
+
+            </div>
+
+            <button type="button" id="btnAnularFactura" class="btn-peligro">
+                <i class="bi bi-x-octagon" aria-hidden="true"></i>
+                Anular factura
+            </button>
+
+        </div>
+
+
+        <!-- BOTONES INFERIORES -->
+        <div class="acciones-modal-factura">
+
+            <button
+                type="button"
+                id="btnEditarFacturaDetalle"
+                class="btn-icono-factura"
+                title="Editar factura"
+                aria-label="Editar factura"
+                hidden
+            >
+                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                id="abrirModalVoucher"
+                class="btn-icono-factura"
+                title="Ver Voucher (80mm)"
+                aria-label="Ver Voucher (80mm)"
+            >
+                <i class="bi bi-receipt" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                id="imprimirFactura"
+                class="btn-icono-factura"
+                title="Imprimir factura"
+                aria-label="Imprimir factura"
+            >
+                <i class="bi bi-printer" aria-hidden="true"></i>
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- MODAL INDEPENDIENTE DE VOUCHER 80MM -->
+<section
+    class="modal-factura modal-voucher-overlay"
+    id="modalVoucherFactura"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Voucher de factura 80mm"
+    hidden
+>
+    <div class="modal-voucher-caja">
+        <div class="modal-voucher-barra">
+            <button
+                type="button"
+                id="imprimirVoucher"
+                class="btn-icono-factura"
+                title="Imprimir voucher"
+                aria-label="Imprimir voucher"
+            >
+                <i class="bi bi-printer" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                id="cerrarModalVoucher"
+                class="btn-icono-factura btn-icono-cerrar"
+                title="Cerrar voucher"
+                aria-label="Cerrar voucher"
+            >
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div id="voucherFacturaContenedor" class="voucher-80mm">
+            <div class="voucher-encabezado">
+                <img src="../assets/Logo.png" alt="SOUVANIC" class="voucher-logo">
+                <h3>NICARAGUA SOUVENIR</h3>
+                <p>SOUVANIC · Comprobante de Venta</p>
+                <p class="voucher-estado-anulada" id="voucherEstadoAnulada" hidden>*** FACTURA ANULADA ***</p>
+            </div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-meta">
+                <div><span>Factura:</span><strong id="voucherNumero">-</strong></div>
+                <div><span>Fecha:</span><span id="voucherFecha">-</span></div>
+                <div><span>Cliente:</span><span id="voucherCliente">-</span></div>
+                <div><span>Cajero:</span><span id="voucherResponsable">-</span></div>
+            </div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-items-header">
+                <span>DESCRIPCIÓN</span>
+                <span>TOTAL</span>
+            </div>
+            <div class="voucher-items" id="voucherItems"></div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-totales" id="voucherTotales"></div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-pagos" id="voucherPagos"></div>
+            <div class="voucher-linea"></div>
+            <div class="voucher-pie">
+                <p>¡Gracias por su compra!</p>
+                <p>Registrado en SOUVANIC</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script src="../js/core/neurona.js"></script>
+    <script src="../js/core/auth.js"></script>
+<script src="../js/core/notificaciones.js"></script>
+<script src="../js/core/sidebar.js"></script>
+<script src="../js/core/ui-estados.js"></script>
+<script src="../js/utils/xlsx-export.js"></script>
+<script src="../js/modules/facturas.js"></script>
+
+</body>
+</html>

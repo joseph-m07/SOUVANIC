@@ -18,10 +18,25 @@ const chkEsCliente = document.getElementById("socioEsCliente");
 const chkEsProveedor = document.getElementById("socioEsProveedor");
 const chkEsEmpleado = document.getElementById("socioEsEmpleado");
 
+// Ventana de detalle y opciones del socio
+const socioOpcionesModal = document.getElementById("socioOpcionesModal");
+const closeSocioOpciones = document.querySelector(".close-socio-opciones");
+const socioOpcionesNombre = document.getElementById("socioOpcionesNombre");
+const socioOpcionesId = document.getElementById("socioOpcionesId");
+const socioOpcionesBadges = document.getElementById("socioOpcionesBadges");
+const socioOpcionesTelefono = document.getElementById("socioOpcionesTelefono");
+const socioOpcionesCorreo = document.getElementById("socioOpcionesCorreo");
+const socioOpcionesDireccion = document.getElementById("socioOpcionesDireccion");
+const btnSocioOpcionEditar = document.getElementById("btnSocioOpcionEditar");
+const btnSocioOpcionFacturar = document.getElementById("btnSocioOpcionFacturar");
+const btnSocioOpcionEliminar = document.getElementById("btnSocioOpcionEliminar");
+
 let editingClientRow = null;
 let originalClientId = null;
 let guardandoCliente = false;
 let filtroClasificacionActivo = "todos";
+let socioSeleccionado = null;
+let filaSeleccionada = null;
 
 function actualizarContadorClientes(visibles, total) {
     if (!contadorClientes) return;
@@ -32,7 +47,7 @@ function actualizarContadorClientes(visibles, total) {
 }
 
 // ==========================================
-// ABRIR Y CERRAR MODAL
+// ABRIR Y CERRAR MODALES
 // ==========================================
 
 function cerrarModalCliente() {
@@ -43,6 +58,40 @@ function cerrarModalCliente() {
     if (chkEsProveedor) chkEsProveedor.checked = false;
     if (chkEsEmpleado) chkEsEmpleado.checked = false;
     clientModal.classList.remove("active");
+}
+
+function cerrarModalOpcionesSocio() {
+    if (socioOpcionesModal) {
+        socioOpcionesModal.classList.remove("active");
+    }
+}
+
+function abrirModalOpcionesSocio(socio, fila) {
+    socioSeleccionado = socio;
+    filaSeleccionada = fila;
+
+    if (socioOpcionesNombre) socioOpcionesNombre.textContent = socio.Nombre || "Socio";
+    if (socioOpcionesId) socioOpcionesId.textContent = `ID: ${socio.IdCliente || "-"}`;
+    if (socioOpcionesTelefono) socioOpcionesTelefono.textContent = socio.Telefono || "-";
+    if (socioOpcionesCorreo) socioOpcionesCorreo.textContent = socio.Correo || "No registrado";
+    if (socioOpcionesDireccion) socioOpcionesDireccion.textContent = socio.Direccion || "No registrada";
+
+    if (socioOpcionesBadges) {
+        socioOpcionesBadges.innerHTML = "";
+        socioOpcionesBadges.appendChild(crearBadgesClasificacion(socio));
+    }
+
+    if (btnSocioOpcionFacturar) {
+        btnSocioOpcionFacturar.style.display = socio.EsCliente ? "flex" : "none";
+    }
+
+    if (btnSocioOpcionEliminar) {
+        btnSocioOpcionEliminar.style.display = esAdministrador() ? "flex" : "none";
+    }
+
+    if (socioOpcionesModal) {
+        socioOpcionesModal.classList.add("active");
+    }
 }
 
 openClientModal.addEventListener("click", function () {
@@ -59,8 +108,26 @@ openClientModal.addEventListener("click", function () {
 closeClientModal.addEventListener("click", cerrarModalCliente);
 cancelClientBtn.addEventListener("click", cerrarModalCliente);
 
+if (closeSocioOpciones) {
+    closeSocioOpciones.addEventListener("click", cerrarModalOpcionesSocio);
+}
+
+if (socioOpcionesModal) {
+    socioOpcionesModal.addEventListener("click", event => {
+        if (event.target === socioOpcionesModal) {
+            cerrarModalOpcionesSocio();
+        }
+    });
+}
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && socioOpcionesModal?.classList.contains("active")) {
+        cerrarModalOpcionesSocio();
+    }
+});
+
 // ==========================================
-// CREAR FILA DE SOCIO
+// CREAR FILA DE SOCIO (ESTILO LISTA CON >)
 // ==========================================
 
 function crearBadgesClasificacion(socio) {
@@ -86,6 +153,10 @@ function crearBadgesClasificacion(socio) {
 
 function crearFilaCliente(socio) {
     const fila = document.createElement("tr");
+    fila.className = "socio-fila";
+    fila.tabIndex = 0;
+    fila.setAttribute("role", "button");
+    fila.setAttribute("aria-label", `Ver opciones de ${socio.Nombre || socio.IdCliente}`);
     fila.dataset.esCliente = socio.EsCliente ? "1" : "0";
     fila.dataset.esProveedor = socio.EsProveedor ? "1" : "0";
     fila.dataset.esEmpleado = socio.EsEmpleado ? "1" : "0";
@@ -108,24 +179,19 @@ function crearFilaCliente(socio) {
         fila.appendChild(celda);
     });
 
-    const acciones = document.createElement("td");
+    const celdaChevron = document.createElement("td");
+    celdaChevron.className = "col-chevron";
 
-    const editar = document.createElement("button");
-    editar.type = "button";
-    editar.className = "edit-client-btn";
-    editar.textContent = "Editar";
+    const btnChevron = document.createElement("button");
+    btnChevron.type = "button";
+    btnChevron.className = "socio-chevron-btn";
+    btnChevron.setAttribute("aria-label", `Opciones de ${socio.Nombre || socio.IdCliente}`);
+    btnChevron.innerHTML = '<i class="bi bi-chevron-right" aria-hidden="true"></i>';
 
-    const eliminar = document.createElement("button");
-    eliminar.type = "button";
-    eliminar.className = "delete-client-btn";
-    eliminar.textContent = "Eliminar";
+    celdaChevron.appendChild(btnChevron);
+    fila.appendChild(celdaChevron);
 
-    acciones.appendChild(editar);
-    if (esAdministrador()) {
-        acciones.appendChild(eliminar);
-    }
-
-    fila.appendChild(acciones);
+    fila._socioDatos = socio;
     return fila;
 }
 
@@ -298,23 +364,60 @@ clientForm.addEventListener("submit", async function (event) {
 });
 
 // ==========================================
-// EDITAR Y ELIMINAR SOCIOS
+// CLIC EN FILA / CHEVRON -> VENTANA DE OPCIONES
 // ==========================================
 
-clientBody.addEventListener("click", async function (event) {
-    const boton = event.target.closest("button");
-    if (!boton) return;
+clientBody.addEventListener("click", function (event) {
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila || !fila._socioDatos) return;
+    abrirModalOpcionesSocio(fila._socioDatos, fila);
+});
 
-    const fila = boton.closest("tr");
-    if (!fila || fila.children.length < 7) return;
+clientBody.addEventListener("keydown", function (event) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila || !fila._socioDatos) return;
+    event.preventDefault();
+    abrirModalOpcionesSocio(fila._socioDatos, fila);
+});
 
-    const id = fila.children[0].textContent.trim();
+// Opciones dentro de la ventana del socio
+if (btnSocioOpcionEditar) {
+    btnSocioOpcionEditar.addEventListener("click", function () {
+        if (!socioSeleccionado || !filaSeleccionada) return;
 
-    if (boton.classList.contains("delete-client-btn")) {
+        const socio = socioSeleccionado;
+        editingClientRow = filaSeleccionada;
+        originalClientId = socio.IdCliente;
+
+        cerrarModalOpcionesSocio();
+
+        if (socioModalTitulo) socioModalTitulo.textContent = "Editar socio";
+        document.getElementById("clientId").value = socio.IdCliente || "";
+        document.getElementById("clientName").value = socio.Nombre || "";
+        document.getElementById("clientPhone").value = socio.Telefono || "";
+        document.getElementById("clientEmail").value = socio.Correo || "";
+        document.getElementById("clientAddress").value = socio.Direccion || "";
+
+        if (chkEsCliente) chkEsCliente.checked = Boolean(socio.EsCliente);
+        if (chkEsProveedor) chkEsProveedor.checked = Boolean(socio.EsProveedor);
+        if (chkEsEmpleado) chkEsEmpleado.checked = Boolean(socio.EsEmpleado);
+
+        clientModal.classList.add("active");
+    });
+}
+
+if (btnSocioOpcionEliminar) {
+    btnSocioOpcionEliminar.addEventListener("click", async function () {
+        if (!socioSeleccionado) return;
+
         if (!esAdministrador()) {
             SouvanicUI.notificar("No tenés permisos para eliminar socios.", "warning");
             return;
         }
+
+        const id = socioSeleccionado.IdCliente;
+        cerrarModalOpcionesSocio();
 
         const confirmar = await SouvanicUI.confirmar({
             titulo: "Eliminar socio",
@@ -328,7 +431,6 @@ clientBody.addEventListener("click", async function (event) {
 
         if (!confirmar) return;
 
-        boton.disabled = true;
         try {
             const respuesta = await fetchAutenticado(`/socios/${encodeURIComponent(id)}`, {
                 method: "DELETE"
@@ -346,31 +448,9 @@ clientBody.addEventListener("click", async function (event) {
             if (sessionStorage.getItem("token")) {
                 SouvanicUI.notificar("Error al eliminar el socio: " + error.message, "error");
             }
-        } finally {
-            boton.disabled = false;
         }
-    }
-
-    if (boton.classList.contains("edit-client-btn")) {
-        editingClientRow = fila;
-        originalClientId = id;
-
-        if (socioModalTitulo) socioModalTitulo.textContent = "Editar socio";
-
-        const celdas = fila.querySelectorAll("td");
-        document.getElementById("clientId").value = celdas[0].textContent.trim();
-        document.getElementById("clientName").value = celdas[1].textContent.trim();
-        document.getElementById("clientPhone").value = celdas[3].textContent.trim();
-        document.getElementById("clientEmail").value = celdas[4].textContent.trim();
-        document.getElementById("clientAddress").value = celdas[5].textContent.trim();
-
-        if (chkEsCliente) chkEsCliente.checked = fila.dataset.esCliente === "1";
-        if (chkEsProveedor) chkEsProveedor.checked = fila.dataset.esProveedor === "1";
-        if (chkEsEmpleado) chkEsEmpleado.checked = fila.dataset.esEmpleado === "1";
-
-        clientModal.classList.add("active");
-    }
-});
+    });
+}
 
 // ==========================================
 // BUSCAR Y FILTRAR SOCIOS
