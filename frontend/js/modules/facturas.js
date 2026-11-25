@@ -95,7 +95,9 @@ const modalDetalleFactura = document.getElementById("modalDetalleFactura");
 const cerrarDetalleFactura = document.getElementById("cerrarDetalleFactura");
 const imprimirFactura = document.getElementById("imprimirFactura");
 const imprimirVoucher = document.getElementById("imprimirVoucher");
-const alternarVistaVoucher = document.getElementById("alternarVistaVoucher");
+const abrirModalVoucher = document.getElementById("abrirModalVoucher");
+const cerrarModalVoucher = document.getElementById("cerrarModalVoucher");
+const modalVoucherFactura = document.getElementById("modalVoucherFactura");
 const voucherFacturaContenedor = document.getElementById("voucherFacturaContenedor");
 
 const numeroFacturaDetalle = document.getElementById("numeroFacturaDetalle");
@@ -2715,32 +2717,39 @@ function renderizarVoucherFactura(factura, detalle, pagos, totalPagado, saldo) {
         divSaldo.innerHTML = `<span>Saldo pendiente:</span><strong>C$ ${formatearMoneda(saldo)}</strong>`;
         voucherPagos.appendChild(divSaldo);
     }
+}
 
-    // Reiniciar vista previa al abrir modal
-    voucherFacturaContenedor.hidden = true;
-    if (alternarVistaVoucher) {
-        alternarVistaVoucher.innerHTML = '<i class="bi bi-receipt"></i> Vista Voucher (80mm)';
+abrirModalVoucher?.addEventListener("click", function() {
+    if (!modalVoucherFactura) return;
+    modalVoucherFactura.hidden = false;
+});
+
+function cerrarVoucherModal() {
+    if (modalVoucherFactura) {
+        modalVoucherFactura.hidden = true;
     }
 }
 
-alternarVistaVoucher?.addEventListener("click", function() {
-    if (!voucherFacturaContenedor) return;
-    const mostrarVoucher = voucherFacturaContenedor.hidden;
-    voucherFacturaContenedor.hidden = !mostrarVoucher;
-    alternarVistaVoucher.innerHTML = mostrarVoucher
-        ? '<i class="bi bi-file-earmark-text"></i> Ocultar Voucher'
-        : '<i class="bi bi-receipt"></i> Vista Voucher (80mm)';
+cerrarModalVoucher?.addEventListener("click", cerrarVoucherModal);
+
+modalVoucherFactura?.addEventListener("click", function(event) {
+    if (event.target === modalVoucherFactura) {
+        cerrarVoucherModal();
+    }
+});
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape" && modalVoucherFactura && !modalVoucherFactura.hidden) {
+        cerrarVoucherModal();
+    }
 });
 
 imprimirVoucher?.addEventListener("click", function() {
-    if (modalDetalleFactura.hidden || !voucherFacturaContenedor) return;
-    const estabaOculto = voucherFacturaContenedor.hidden;
-    voucherFacturaContenedor.hidden = false;
+    if (!modalVoucherFactura || modalVoucherFactura.hidden || !voucherFacturaContenedor) return;
     document.body.classList.add("imprimiendo-voucher");
 
     const restaurar = () => {
         document.body.classList.remove("imprimiendo-voucher");
-        voucherFacturaContenedor.hidden = estabaOculto;
         window.removeEventListener("afterprint", restaurar);
     };
 
