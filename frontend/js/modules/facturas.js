@@ -1239,6 +1239,21 @@ function actualizarResumenPagos(totales = obtenerTotales()) {
     saldoFactura.textContent = formatearMoneda(excedido ? 0 : saldo);
     vueltoFactura.textContent = formatearMoneda(vuelto);
 
+    const saldoEnCero = totales.total > 0 && saldo <= 0.009;
+    if (btnAgregarPago) {
+        btnAgregarPago.disabled = registrandoFactura || saldoEnCero;
+        btnAgregarPago.title = saldoEnCero
+            ? "El saldo pendiente es C$ 0.00"
+            : "Agregar pago";
+    }
+    if (pagoMetodo) {
+        pagoMetodo.disabled = registrandoFactura || saldoEnCero;
+        if (saldoEnCero) {
+            pagoMetodo.value = "";
+            actualizarCamposPago();
+        }
+    }
+
     if (pagosFactura.length === 0) {
         estadoPagoFactura.textContent = "Sin pagos";
         estadoPagoFactura.className = "estado-pago-sin-pagos";
@@ -1279,6 +1294,14 @@ function agregarPago() {
 
     const metodo = pagoMetodo.value;
     const totales = obtenerTotales();
+
+    if (totales.total > 0 && redondearMoneda(totales.total - totalPagosRegistrados()) <= 0.009) {
+        SouvanicUI.notificar(
+            "El saldo pendiente es C$ 0.00. No podés agregar más métodos de pago.",
+            "warning"
+        );
+        return;
+    }
 
     if (!METODOS_PAGO_UI.includes(metodo)) {
         SouvanicUI.notificar("Seleccioná un método de pago.", "warning");
