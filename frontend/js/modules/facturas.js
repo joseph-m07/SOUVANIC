@@ -534,6 +534,15 @@ function abrirDesplegableProductos() {
     facturaProductoBusqueda.setAttribute("aria-expanded", "true");
 }
 
+function escapeHtml(texto) {
+    return String(texto ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function cerrarDesplegableProductos() {
     if (!menuDesplegableProductos) return;
     menuDesplegableProductos.hidden = true;
@@ -1751,9 +1760,15 @@ async function registrarFactura(imprimirDespues = false) {
 
     cambiarEstadoRegistro(true);
 
+    const editando = Number.isInteger(idFacturaEditando) && idFacturaEditando > 0;
+    const rutaEnvio = editando
+        ? `/facturas/${encodeURIComponent(idFacturaEditando)}`
+        : "/facturas";
+    const metodoEnvio = editando ? "PUT" : "POST";
+
     try {
-        const respuesta = await fetchAutenticado("/facturas", {
-            method: "POST",
+        const respuesta = await fetchAutenticado(rutaEnvio, {
+            method: metodoEnvio,
             headers: {
                 "Content-Type": "application/json"
             },
@@ -1797,6 +1812,8 @@ async function registrarFactura(imprimirDespues = false) {
         claveIdempotenciaFactura = generarClaveIdempotencia();
 
         limpiarFormularioFactura();
+        irAPasoWizard(1, false);
+        mostrarVistaFacturacion("listado");
         await Promise.all([cargarProductos(), cargarHistorialFacturas()]);
 
         if (imprimirDespues && idFactura) {
@@ -1868,6 +1885,7 @@ function limpiarFormularioFactura() {
     mostrarDetalleFactura();
     renderPagos();
     actualizarResumenPagos();
+    salirModoEdicionWizard();
 }
 
 async function confirmarLimpiarFormulario() {
@@ -2556,6 +2574,11 @@ async function abrirDetalleFactura(idFactura) {
         }
 
         renderDetalleProductos(datos.detalle);
+
+        const btnEditarDetalle = document.getElementById("btnEditarFacturaDetalle");
+        if (btnEditarDetalle) {
+            btnEditarDetalle.hidden = !(esAdminFacturacion && !esFacturaAnulada(factura));
+        }
         renderPagosDetalle(pagos);
 
         resumenTotalesDetalle.innerHTML = "";
@@ -2875,6 +2898,210 @@ confirmarAnulacionFactura.addEventListener("click", async function() {
 });
 
 // ========================================
+// WIZARD DE CREACIÓN / EDICIÓN Y VISTAS
+// ========================================
+
+let idFacturaEditando = null;
+let pasoWizardActual = 1;
+
+const vistaWizardFactura = document.getElementById("vistaWizardFactura");
+const seccionHistorialFacturas = document.getElementById("historial");
+const btnVerListadoFacturas = document.getElementById("btnVerListadoFacturas");
+const btnNuevaFacturaWizard = document.getElementById("btnNuevaFacturaWizard");
+const wizardModoEdicionBanner = document.getElementById("wizardModoEdicionBanner");
+const wizardModoEdicionTexto = document.getElementById("wizardModoEdicionTexto");
+const btnCancelarEdicionWizard = document.getElementById("btnCancelarEdicionWizard");
+const btnEditarFacturaDetalle = document.getElementById("btnEditarFacturaDetalle");
+
+function salirModoEdicionWizard() {
+    idFacturaEditando = null;
+    if (wizardModoEdicionBanner) wizardModoEdicionBanner.hidden = true;
+    if (guardarFactura) {
+        guardarFactura.innerHTML = '<i class="bi bi-check2-circle" aria-hidden="true"></i> Guardar factura';
+    }
+}
+
+function mostrarVistaFacturacion(vista) {
+    const esListado = vista === "listado";
+    if (vistaWizardFactura) vistaWizardFactura.hidden = esListado;
+    if (seccionHistorialFacturas) seccionHistorialFacturas.hidden = !esListado;
+
+    if (btnVerListadoFacturas) {
+        btnVerListadoFacturas.classList.toggle("btn-primario", esListado);
+        btnVerListadoFacturas.classList.toggle("btn-secundario", !esListado);
+    }
+    if (btnNuevaFacturaWizard) {
+        btnNuevaFacturaWizard.classList.toggle("btn-primario", !esListado);
+        btnNuevaFacturaWizard.classList.toggle("btn-secundario", esListado);
+    }
+}
+
+function validarPasoWizard(pasoActual) {
+    if (pasoActual === 1) {
+        if (!facturaCliente.value) {
+            SouvanicUI.notificar("Seleccioná un cliente para continuar al paso de productos.", "warning");
+            facturaCliente.focus();
+            return false;
+        }
+    }
+    if (pasoActual === 2) {
+        if (detalleFactura.length === 0) {
+            SouvanicUI.notificar("Agregá al menos un producto antes de pasar a pagos.", "warning");
+            facturaProductoBusqueda?.focus();
+            return false;
+        }
+    }
+    return true;
+}
+
+function irAPasoWizard(nuevoPaso, validar = true) {
+    const destino = Math.max(1, Math.min(3, Number(nuevoPaso) || 1));
+
+    if (validar && destino > pasoWizardActual) {
+        for (let p = pasoWizardActual; p < destino; p++) {
+            if (!validarPasoWizard(p)) return;
+        }
+    }
+
+    pasoWizardActual = destino;
+
+    [1, 2, 3].forEach(num => {
+        const seccion = document.getElementById(`wizardPaso${num}`);
+        if (seccion) seccion.hidden = num !== destino;
+    });
+
+    document.querySelectorAll(".wizard-paso-btn").forEach(btn => {
+        const target = Number(btn.dataset.wizardTarget);
+        btn.classList.toggle("active", target === destino);
+        btn.classList.toggle("completado", target < destino);
+    });
+}
+
+function iniciarEdicionFactura(datosCompletos) {
+    if (!datosCompletos || !datosCompletos.factura) return;
+
+    const fac = datosCompletos.factura;
+    const items = Array.isArray(datosCompletos.detalle) ? datosCompletos.detalle : [];
+    const pagos = Array.isArray(datosCompletos.pagos) ? datosCompletos.pagos : [];
+
+    limpiarFormularioFactura();
+    idFacturaEditando = fac.IdFactura;
+
+    if (wizardModoEdicionBanner) wizardModoEdicionBanner.hidden = false;
+    if (wizardModoEdicionTexto) {
+        wizardModoEdicionTexto.textContent = `Editando factura N.° ${fac.IdFactura}`;
+    }
+    if (guardarFactura) {
+        guardarFactura.innerHTML = '<i class="bi bi-check2-circle" aria-hidden="true"></i> Guardar cambios';
+    }
+
+    // Precargar cliente
+    aplicarFiltroClientes("");
+    if (facturaCliente) {
+        facturaCliente.value = fac.IdCliente || "";
+    }
+
+    // Precargar productos
+    detalleFactura = items.map(it => {
+        const prodCatalogo = productosDisponibles.find(p => p.CodigoProducto === it.CodigoProducto);
+        const cantidad = Number(it.Cantidad) || 1;
+        const precio = Number(it.PrecioUnitario) || 0;
+        const lineaBruto = redondearMoneda(cantidad * precio);
+        const descMonto = Number(it.DescuentoAplicado || 0);
+        const descPorc = lineaBruto > 0 ? redondearMoneda((descMonto / lineaBruto) * 100) : 0;
+
+        return {
+            codigo: it.CodigoProducto,
+            nombre: it.Producto || prodCatalogo?.Nombre || it.CodigoProducto,
+            precio,
+            cantidad,
+            stockDisponible: (Number(prodCatalogo?.Stock) || 0) + cantidad,
+            descuentoPorcentaje: descPorc
+        };
+    });
+
+    // Precargar descuento general e impuesto
+    const subtotalBruto = detalleFactura.reduce((s, d) => s + d.precio * d.cantidad, 0);
+    const descProd = detalleFactura.reduce((s, d) => s + (d.precio * d.cantidad) * (d.descuentoPorcentaje / 100), 0);
+    const descGen = Math.max(0, redondearMoneda(Number(fac.Descuento || 0) - descProd));
+    descuentoGeneralFactura.value = descGen;
+
+    const baseImp = Math.max(0, redondearMoneda(subtotalBruto - descProd - descGen));
+    const impPorc = baseImp > 0 ? redondearMoneda((Number(fac.Impuesto || 0) / baseImp) * 100) : 0;
+    impuestoFactura.value = impPorc;
+
+    // Precargar pagos activos
+    pagosFactura = pagos
+        .filter(p => p.Estado !== "Anulado")
+        .map(p => ({
+            metodo: p.Metodo,
+            monto: Number(p.Monto),
+            montoRecibido: p.MontoRecibido !== null && p.MontoRecibido !== undefined ? Number(p.MontoRecibido) : null,
+            vuelto: p.Vuelto !== null && p.Vuelto !== undefined ? Number(p.Vuelto) : null,
+            banco: p.Banco || "",
+            bancoDestino: p.BancoDestino || "",
+            cuentaDestino: p.CuentaDestino || "",
+            referencia: p.Referencia || "",
+            observaciones: p.Observaciones || ""
+        }));
+
+    mostrarDetalleFactura();
+    renderPagos();
+    actualizarResumenPagos();
+
+    cerrarModalDetalle();
+    mostrarVistaFacturacion("wizard");
+    irAPasoWizard(1, false);
+}
+
+btnVerListadoFacturas?.addEventListener("click", () => {
+    window.location.hash = "historial";
+    mostrarVistaFacturacion("listado");
+});
+
+btnNuevaFacturaWizard?.addEventListener("click", () => {
+    if (window.location.hash === "#historial") {
+        history.replaceState(null, "", window.location.pathname);
+    }
+    salirModoEdicionWizard();
+    limpiarFormularioFactura();
+    mostrarVistaFacturacion("wizard");
+    irAPasoWizard(1, false);
+});
+
+btnCancelarEdicionWizard?.addEventListener("click", () => {
+    limpiarFormularioFactura();
+    mostrarVistaFacturacion("listado");
+});
+
+btnEditarFacturaDetalle?.addEventListener("click", () => {
+    if (!facturaDetalleActual || !esAdminFacturacion) return;
+    iniciarEdicionFactura(facturaDetalleActual);
+});
+
+document.querySelectorAll(".wizard-paso-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        irAPasoWizard(Number(btn.dataset.wizardTarget), true);
+    });
+});
+
+document.querySelectorAll("[data-wizard-next]").forEach(btn => {
+    btn.addEventListener("click", () => {
+        irAPasoWizard(Number(btn.dataset.wizardNext), true);
+    });
+});
+
+document.querySelectorAll("[data-wizard-prev]").forEach(btn => {
+    btn.addEventListener("click", () => {
+        irAPasoWizard(Number(btn.dataset.wizardPrev), false);
+    });
+});
+
+window.addEventListener("hashchange", () => {
+    mostrarVistaFacturacion(window.location.hash === "#historial" ? "listado" : "wizard");
+});
+
+// ========================================
 // INICIALIZACIÓN
 // ========================================
 
@@ -2882,6 +3109,8 @@ configurarRolFacturacion();
 actualizarCamposPago();
 renderPagos();
 mostrarDetalleFactura();
+mostrarVistaFacturacion(window.location.hash === "#historial" ? "listado" : "wizard");
+irAPasoWizard(1, false);
 
 (async function iniciarFacturacion() {
     await Promise.all([

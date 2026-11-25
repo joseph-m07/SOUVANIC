@@ -103,20 +103,53 @@
                 </div>
 
                 <div class="module-header-acciones">
-                    <a class="btn-secundario" href="#historial">
-                        <i class="bi bi-receipt" aria-hidden="true"></i>
-                        Ver historial
-                    </a>
+                    <button type="button" class="btn-secundario" id="btnVerListadoFacturas">
+                        <i class="bi bi-list-ul" aria-hidden="true"></i>
+                        Listado
+                    </button>
+                    <button type="button" class="btn-primario" id="btnNuevaFacturaWizard">
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                        Nueva factura
+                    </button>
                 </div>
 
             </div>
 
 
-            <!-- NUEVA FACTURA -->
+            <!-- CREACIÓN Y EDICIÓN (WIZARD) -->
 
-            <section class="factura-formulario" aria-labelledby="tituloNuevaFactura">
+            <div id="vistaWizardFactura" class="wizard-factura-contenedor">
 
-                <h2 id="tituloNuevaFactura">Nueva factura</h2>
+                <div id="wizardModoEdicionBanner" class="wizard-edicion-banner" hidden>
+                    <span>
+                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                        <strong id="wizardModoEdicionTexto">Editando factura</strong>
+                    </span>
+                    <button type="button" id="btnCancelarEdicionWizard" class="btn-cancelar">
+                        Cancelar edición
+                    </button>
+                </div>
+
+                <nav class="wizard-stepper" aria-label="Pasos de facturación">
+                    <button type="button" class="wizard-paso-btn active" data-wizard-target="1">
+                        <span class="wizard-paso-num">1</span>
+                        <span>Cliente</span>
+                    </button>
+                    <button type="button" class="wizard-paso-btn" data-wizard-target="2">
+                        <span class="wizard-paso-num">2</span>
+                        <span>Productos</span>
+                    </button>
+                    <button type="button" class="wizard-paso-btn" data-wizard-target="3">
+                        <span class="wizard-paso-num">3</span>
+                        <span>Pagos</span>
+                    </button>
+                </nav>
+
+            <!-- PASO 1: CLIENTE -->
+
+            <section class="factura-formulario" id="wizardPaso1" data-wizard-paso="1" aria-labelledby="tituloNuevaFactura">
+
+                <h2 id="tituloNuevaFactura">Paso 1 · Seleccionar cliente</h2>
 
                 <h3>
                     <i class="bi bi-person" aria-hidden="true"></i>
@@ -234,6 +267,22 @@
 
                 </form>
 
+                <div class="wizard-navegacion">
+                    <span></span>
+                    <button type="button" class="btn-primario" data-wizard-next="2">
+                        Siguiente: Productos
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- PASO 2: PRODUCTOS Y TOTALES -->
+
+            <section class="factura-formulario" id="wizardPaso2" data-wizard-paso="2" hidden>
+
+                <h2>Paso 2 · Productos y totales</h2>
+
                 <h3>
                     <i class="bi bi-box-seam" aria-hidden="true"></i>
                     Productos
@@ -297,12 +346,9 @@
 
                 <div id="infoProductoFactura" class="factura-producto-info" hidden></div>
 
-            </section>
+            <!-- DETALLE Y TOTALES -->
 
-
-            <!-- DETALLE, TOTALES Y PAGOS -->
-
-            <section class="factura-detalle" aria-labelledby="tituloDetalleFactura">
+            <div class="factura-detalle-bloque" aria-labelledby="tituloDetalleFactura">
 
                 <h2 id="tituloDetalleFactura">Detalle de la factura</h2>
 
@@ -385,9 +431,28 @@
 
                 </div>
 
+                </div>
+
+                <div class="wizard-navegacion">
+                    <button type="button" class="btn-secundario" data-wizard-prev="1">
+                        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                        Anterior: Cliente
+                    </button>
+                    <button type="button" class="btn-primario" data-wizard-next="3">
+                        Siguiente: Pagos
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- PASO 3: PAGOS Y CONFIRMACIÓN -->
+
+            <section class="factura-detalle" id="wizardPaso3" data-wizard-paso="3" hidden>
+
                 <h2 class="subtitulo-factura">
                     <i class="bi bi-credit-card" aria-hidden="true"></i>
-                    Pagos
+                    Paso 3 · Pagos y confirmación
                 </h2>
 
                 <p class="factura-ayuda">
@@ -547,7 +612,17 @@
 
                 </div>
 
+                <div class="wizard-navegacion">
+                    <button type="button" class="btn-secundario" data-wizard-prev="2">
+                        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                        Anterior: Productos
+                    </button>
+                    <span></span>
+                </div>
+
             </section>
+
+            </div> <!-- /#vistaWizardFactura -->
 
 
             <!-- HISTORIAL DE FACTURAS -->
@@ -853,6 +928,17 @@
 
         <!-- BOTONES INFERIORES -->
         <div class="acciones-modal-factura">
+
+            <button
+                type="button"
+                id="btnEditarFacturaDetalle"
+                class="btn-icono-factura"
+                title="Editar factura"
+                aria-label="Editar factura"
+                hidden
+            >
+                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+            </button>
 
             <button
                 type="button"

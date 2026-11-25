@@ -7906,3 +7906,84 @@ tr.socio-fila:hover .socio-chevron-btn {
     background: #cbd5e1 !important;
     color: #0f172a !important;
 }
+
+/* ==========================================
+   WIZARD DE FACTURACIÓN (CREACIÓN / EDICIÓN)
+   ========================================== */
+.wizard-factura-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.wizard-edicion-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 10px;
+    color: #92400e;
+}
+
+.wizard-stepper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.wizard-paso-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wizard-paso-btn.active {
+    background: #1a4b77;
+    border-color: #1a4b77;
+    color: #ffffff;
+}
+
+.wizard-paso-btn.completado {
+    border-color: #16a34a;
+    color: #166534;
+    background: #f0fdf4;
+}
+
+.wizard-paso-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.08);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.wizard-paso-btn.active .wizard-paso-num {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+}
+
+.wizard-navegacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
