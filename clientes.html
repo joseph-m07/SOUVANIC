@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <script>
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+            window.location.replace("index.html");
+        }
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Clientes - SOUVANIC</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+
+        <!-- Barra lateral -->
+        <aside class="sidebar">
+
+    <div class="sidebar-brand">
+        <img src="Logo.png" alt="Logotipo Nicaragua Souvenir">
+        <h2>SOUVANIC</h2>
+    </div>
+
+    <nav>
+        <a href="dashboard.html">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+
+        <a href="productos.html">
+            <i class="bi bi-box-seam"></i> Productos
+        </a>
+
+        <a href="clientes.html" class="active">
+            <i class="bi bi-people"></i> Clientes
+        </a>
+
+        <a href="facturas.html">
+            <i class="bi bi-file-earmark-plus"></i> Nueva Factura
+        </a>
+
+        <a href="facturas.html#historial">
+            <i class="bi bi-receipt"></i> Facturas
+        </a>
+
+        <a href="inventario.html">
+            <i class="bi bi-boxes"></i> Inventario
+        </a>
+
+        <div class="sidebar-bottom"></div>
+    </nav>
+
+    <div class="decoracion-momotombo" aria-hidden="true">
+        <svg viewBox="0 0 250 120" xmlns="http://www.w3.org/2000/svg">
+            <path d="
+                M 0 120
+                L 20 108
+                L 45 100
+                L 65 88
+                L 83 72
+                L 101 51
+                L 115 31
+                L 125 20
+                L 136 32
+                L 151 53
+                L 169 75
+                L 190 91
+                L 215 103
+                L 250 115
+                L 250 120
+                Z
+            " fill="currentColor"/>
+        </svg>
+    </div>
+
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+
+            <div class="module-header">
+                <div class="module-header-info">
+                    <h1>Clientes</h1>
+                    <p>Administra los clientes de Nicaragua Souvenir</p>
+                </div>
+            </div>
+
+            <!-- Buscador y botón agregar cliente -->
+
+            <div class="products-tools">
+
+                <input
+                    type="search"
+                    id="searchClient"
+                    placeholder="Buscar cliente..."
+                >
+
+                <button type="button" id="openClientModal">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Agregar cliente
+                </button>
+
+            </div>
+
+            <p class="module-contador" id="contadorClientes" aria-live="polite">
+                Cargando clientes...
+            </p>
+
+             <!-- Tabla de clientes -->
+
+            <div class="products-table">
+
+                <div class="tabla-contenedor-responsiva">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Correo</th>
+                                <th>Dirección</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="clientsBody">
+                            <tr class="fila-estado">
+                                <td colspan="6" class="celda-estado">
+                                    <div class="estado-cargando" role="status">
+                                        <i class="bi bi-arrow-repeat spin" aria-hidden="true"></i>
+                                        <span>Cargando clientes...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Modal para agregar cliente -->
+<div class="modal" id="clientModal">
+
+    <div class="modal-content">
+
+        <!-- Botón X -->
+        <button class="close-client-modal clase-modal" type="button" aria-label="Cerrar">
+            &times;
+        </button>
+
+        <h2>Agregar cliente</h2>
+
+        <form id="clientForm">
+
+            <label for="clientId">ID del cliente</label>
+            <input
+                type="text"
+                id="clientId"
+                placeholder="Ej. C003"
+            >
+
+            <label for="clientName">Nombre</label>
+            <input
+                type="text"
+                id="clientName"
+                placeholder="Nombre completo"
+            >
+
+            <label for="clientPhone">Teléfono</label>
+            <input
+                type="text"
+                id="clientPhone"
+                placeholder="Ej. 8888-3333"
+            >
+
+            <label for="clientEmail">Correo <span class="etiqueta-opcional">(opcional)</span></label>
+            <input
+                type="email"
+                id="clientEmail"
+                placeholder="Ej. cliente@email.com (opcional)"
+            >
+
+            <label for="clientAddress">Dirección <span class="etiqueta-opcional">(opcional)</span></label>
+            <input
+                type="text"
+                id="clientAddress"
+                placeholder="Ej. Managua (opcional)"
+            >
+
+            <div class="moda-buttons">
+
+                <button type="button" class="cancel-btn cancel-client-btn">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="save-btn">
+                    <i class="bi bi-check-lg"></i> Guardar
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- JavaScript -->
+<script src="auth.js"></script>
+<script src="notificaciones.js"></script>
+<script src="sidebar.js"></script>
+<script src="ui-estados.js"></script>
+<script src="clientes.js"></script>
+
+</body>
+
+</html>
+

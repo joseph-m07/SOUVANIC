@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <script>
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+            window.location.replace("index.html");
+        }
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Productos - SOUVANIC</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+
+        <!-- Barra lateral -->
+    <aside class="sidebar">
+
+    <div class="sidebar-brand">
+        <img src="Logo.png" alt="Logotipo Nicaragua Souvenir">
+        <h2>SOUVANIC</h2>
+    </div>
+
+    <nav>
+        <a href="dashboard.html">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+
+        <a href="productos.html" class="active">
+            <i class="bi bi-box-seam"></i> Productos
+        </a>
+
+        <a href="clientes.html">
+            <i class="bi bi-people"></i> Clientes
+        </a>
+
+        <a href="facturas.html">
+            <i class="bi bi-file-earmark-plus"></i> Nueva Factura
+        </a>
+
+        <a href="facturas.html#historial">
+            <i class="bi bi-receipt"></i> Facturas
+        </a>
+
+        <a href="inventario.html">
+            <i class="bi bi-boxes"></i> Inventario
+        </a>
+
+        <div class="sidebar-bottom"></div>
+    </nav>
+
+    <div class="decoracion-momotombo" aria-hidden="true">
+        <svg viewBox="0 0 250 120" xmlns="http://www.w3.org/2000/svg">
+            <path d="
+                M 0 120
+                L 20 108
+                L 45 100
+                L 65 88
+                L 83 72
+                L 101 51
+                L 115 31
+                L 125 20
+                L 136 32
+                L 151 53
+                L 169 75
+                L 190 91
+                L 215 103
+                L 250 115
+                L 250 120
+                Z
+            " fill="currentColor"/>
+        </svg>
+    </div>
+
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+
+            <div class="module-header">
+                <div class="module-header-info">
+                    <h1>Productos</h1>
+                    <p>Administra los productos de Nicaragua Souvenir</p>
+                </div>
+            </div>
+
+            <!-- Buscador, filtros y botón agregar producto -->
+            <div class="products-tools products-tools-catalogo">
+
+                <input
+                    type="search"
+                    id="searchProduct"
+                    placeholder="Buscar por código o nombre..."
+                    aria-label="Buscar productos"
+                >
+
+                <select id="filtroCategoriaProductos" aria-label="Filtrar por categoría">
+                    <option value="">Todas las categorías</option>
+                </select>
+
+                <select id="filtroEstadoProductos" aria-label="Filtrar por estado">
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activos</option>
+                    <option value="inactivo">Inactivos</option>
+                </select>
+
+                <button type="button" id="openModal">
+                    <i class="bi bi-plus-lg"></i>
+                    Agregar producto
+                </button>
+
+            </div>
+
+            <p class="module-contador" id="contadorProductos" aria-live="polite">
+                Cargando productos...
+            </p>
+
+            <!-- Tabla de productos -->
+            <div class="products-table">
+
+                <div class="tabla-contenedor-responsiva">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th aria-sort="none">
+                                    <button type="button" class="th-orden" data-orden-producto="codigo">
+                                        Código <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
+                                    </button>
+                                </th>
+                                <th aria-sort="none">
+                                    <button type="button" class="th-orden" data-orden-producto="nombre">
+                                        Producto <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
+                                    </button>
+                                </th>
+                                <th aria-sort="none">
+                                    <button type="button" class="th-orden" data-orden-producto="categoria">
+                                        Categoría <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
+                                    </button>
+                                </th>
+                                <th aria-sort="none">
+                                    <button type="button" class="th-orden" data-orden-producto="precio">
+                                        Precio <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
+                                    </button>
+                                </th>
+                                <th aria-sort="none">
+                                    <button type="button" class="th-orden" data-orden-producto="estado">
+                                        Estado <i class="bi bi-arrow-down-up" aria-hidden="true"></i>
+                                    </button>
+                                </th>
+                                <th>Acciones</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="productsBody">
+                            <tr class="fila-estado">
+                                <td colspan="6" class="celda-estado">
+                                    <div class="estado-cargando" role="status">
+                                        <i class="bi bi-arrow-repeat spin" aria-hidden="true"></i>
+                                        <span>Cargando productos...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="paginacion" id="paginacionProductos" hidden>
+                    <button type="button" id="paginaProductosAnterior" class="btn-paginacion">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior
+                    </button>
+                    <span id="paginaProductosInfo" class="paginacion-info"></span>
+                    <button type="button" id="paginaProductosSiguiente" class="btn-paginacion">
+                        Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Detalle de producto (solo lectura) -->
+    <div class="modal" id="modalDetalleProducto">
+        <div class="modal-content detalle-producto-contenido">
+            <button class="close-modal" type="button" id="cerrarDetalleProducto">×</button>
+            <h2 id="detalleProductoTitulo">Detalle del producto</h2>
+            <div class="detalle-producto-grid" id="detalleProductoContenido"></div>
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" id="volverDetalleProducto">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal agregar producto -->
+    <div class="modal" id="productModal">
+
+        <div class="modal-content">
+
+            <button class="close-modal" type="button">×</button>
+
+            <h2>Agregar producto</h2>
+
+            <form id="productForm">
+
+                <label>Código</label>
+                <input type="text" id="codigo">
+
+                <label>Nombre del producto</label>
+                <input
+                    type="text"
+                    id="nombreProducto"
+                    placeholder="Ej. Artesanía de madera"
+                >
+
+                <label>Descripción <span class="etiqueta-opcional">(opcional)</span></label>
+                <textarea
+                    id="descripcionProducto"
+                    rows="3"
+                    maxlength="255"
+                    placeholder="Detalle breve del producto"
+                ></textarea>
+
+                <label>Categoría</label>
+                <div class="selector-categoria">
+                    <select id="categoria">
+                        <option value="">
+                            Seleccionar categoría
+                        </option>
+                    </select>
+                    <button type="button" id="btnNuevaCategoria" class="btn-nueva-categoria" title="Crear una categoría">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Nueva</span>
+                    </button>
+                    <button type="button" id="btnEliminarCategoria" class="btn-eliminar-categoria" title="Eliminar la categoría seleccionada">
+                        <i class="bi bi-trash3"></i>
+                        <span>Eliminar</span>
+                    </button>
+                </div>
+
+                <div class="campo-nueva-categoria" id="campoNuevaCategoria" hidden>
+                    <input
+                        type="text"
+                        id="nuevaCategoriaInput"
+                        maxlength="50"
+                        placeholder="Nombre de la nueva categoría"
+                    >
+                    <button type="button" id="btnGuardarCategoria" class="btn-agregar-categoria">
+                        Agregar
+                    </button>
+                    <button type="button" id="btnCancelarCategoria" class="btn-cancelar-categoria">
+                        Cancelar
+                    </button>
+                </div>
+
+                <p class="mensaje-error-campo" id="categoriaError" hidden></p>
+
+                <label>Precio</label>
+                <input
+                    type="number"
+                    id="precio"
+                    placeholder="C$ 0.00"
+                >
+
+                <label>Stock</label>
+                <input
+                    type="number"
+                    id="stock"
+                    placeholder="0"
+                >
+
+                <div class="modal-buttons">
+
+                    <button type="button" class="cancel-btn">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="save-btn">
+                        Guardar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script src="auth.js"></script>
+    <script src="notificaciones.js"></script>
+    <script src="sidebar.js"></script>
+    <script src="ui-estados.js"></script>
+    <script src="categorias.js"></script>
+    <script src="productos.js"></script>
+
+</body>
+
+</html>

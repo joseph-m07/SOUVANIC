@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <script>
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+            window.location.replace("index.html");
+        }
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Inventario - SOUVANIC</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- MENÚ LATERAL -->
+
+    <aside class="sidebar">
+
+    <div class="sidebar-brand">
+        <img src="Logo.png" alt="Logotipo Nicaragua Souvenir">
+        <h2>SOUVANIC</h2>
+    </div>
+
+    <nav>
+        <a href="dashboard.html">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+
+        <a href="productos.html">
+            <i class="bi bi-box-seam"></i> Productos
+        </a>
+
+        <a href="clientes.html">
+            <i class="bi bi-people"></i> Clientes
+        </a>
+
+        <a href="facturas.html">
+            <i class="bi bi-file-earmark-plus"></i> Nueva Factura
+        </a>
+
+        <a href="facturas.html#historial">
+            <i class="bi bi-receipt"></i> Facturas
+        </a>
+
+        <a href="inventario.html" class="active">
+            <i class="bi bi-boxes"></i> Inventario
+        </a>
+
+        <div class="sidebar-bottom"></div>
+    </nav>
+
+    <div class="decoracion-momotombo" aria-hidden="true">
+        <svg viewBox="0 0 250 120" xmlns="http://www.w3.org/2000/svg">
+            <path d="
+                M 0 120
+                L 20 108
+                L 45 100
+                L 65 88
+                L 83 72
+                L 101 51
+                L 115 31
+                L 125 20
+                L 136 32
+                L 151 53
+                L 169 75
+                L 190 91
+                L 215 103
+                L 250 115
+                L 250 120
+                Z
+            " fill="currentColor"/>
+        </svg>
+    </div>
+
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+
+    <main class="main-content">
+
+        <div class="module-header">
+
+            <div class="module-header-info">
+                <h1 id="tituloInventario">Inventario</h1>
+                <p id="descripcionInventario">
+                    Controlá el stock y registrá entradas y salidas de productos.
+                </p>
+            </div>
+
+            <div class="module-header-acciones">
+                <button
+                    type="button"
+                    class="btn-primario"
+                    id="btnAbrirMovimientoInventario"
+                >
+                    <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+                    Registrar movimiento
+                </button>
+
+                <div class="menu-exportacion">
+                    <button
+                        type="button"
+                        class="btn-primario"
+                        id="btnExportarInventario"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        aria-controls="menuExportacion"
+                    >
+                        <i class="bi bi-file-earmark-excel" aria-hidden="true"></i>
+                        Exportar XLSX
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+
+                    <div class="menu-exportacion-lista" id="menuExportacion" hidden>
+                        <button type="button" data-exportacion="stock">
+                            <i class="bi bi-box-seam" aria-hidden="true"></i>
+                            <span>
+                                <strong>Stock de productos</strong>
+                                <small>Estado, existencias y valor por producto</small>
+                            </span>
+                        </button>
+
+                        <button type="button" data-exportacion="listado">
+                            <i class="bi bi-card-list" aria-hidden="true"></i>
+                            <span>
+                                <strong>Listado de productos</strong>
+                                <small>Catálogo con códigos y precios</small>
+                            </span>
+                        </button>
+
+                        <button type="button" data-exportacion="unidades">
+                            <i class="bi bi-boxes" aria-hidden="true"></i>
+                            <span>
+                                <strong>Unidades en stock</strong>
+                                <small>Unidades físicas por categoría</small>
+                            </span>
+                        </button>
+
+                        <button type="button" data-exportacion="movimientos">
+                            <i class="bi bi-clock-history" aria-hidden="true"></i>
+                            <span>
+                                <strong>Historial de movimientos</strong>
+                                <small>Entradas y salidas registradas</small>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RESUMEN -->
+
+        <section class="cards inventario-resumen" aria-label="Resumen de inventario">
+
+            <button type="button" class="card card-interactiva" data-resumen-inventario="todos" aria-haspopup="dialog">
+                <h3>
+                    <span class="resumen-icono">
+                        <i class="bi bi-box-seam" aria-hidden="true"></i>
+                    </span>
+                    Productos
+                </h3>
+                <p id="resumenTotalProductos">0</p>
+                <span class="card-ver-detalle">Ver detalle <i class="bi bi-chevron-right" aria-hidden="true"></i></span>
+            </button>
+
+            <button type="button" class="card card-interactiva" data-resumen-inventario="unidades" aria-haspopup="dialog">
+                <h3>
+                    <span class="resumen-icono">
+                        <i class="bi bi-boxes" aria-hidden="true"></i>
+                    </span>
+                    Unidades en stock
+                </h3>
+                <p id="resumenUnidades">0</p>
+                <span class="card-ver-detalle">Ver detalle <i class="bi bi-chevron-right" aria-hidden="true"></i></span>
+            </button>
+
+            <button type="button" class="card card-interactiva resumen-alerta" data-resumen-inventario="bajo" aria-haspopup="dialog">
+                <h3>
+                    <span class="resumen-icono">
+                        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+                    </span>
+                    Stock bajo
+                </h3>
+                <p id="resumenStockBajo">0</p>
+                <span class="card-ver-detalle">Ver detalle <i class="bi bi-chevron-right" aria-hidden="true"></i></span>
+            </button>
+
+            <button type="button" class="card card-interactiva resumen-peligro" data-resumen-inventario="agotado" aria-haspopup="dialog">
+                <h3>
+                    <span class="resumen-icono">
+                        <i class="bi bi-x-octagon" aria-hidden="true"></i>
+                    </span>
+                    Agotados
+                </h3>
+                <p id="resumenAgotados">0</p>
+                <span class="card-ver-detalle">Ver detalle <i class="bi bi-chevron-right" aria-hidden="true"></i></span>
+            </button>
+
+        </section>
+
+        <!-- STOCK DE PRODUCTOS -->
+
+        <section class="recent-sales" aria-labelledby="tituloStock">
+
+            <div class="inventario-stock-encabezado">
+                <h2 id="tituloStock">Stock de productos</h2>
+
+                <button
+                    type="button"
+                    class="btn-primario btn-agregar-producto"
+                    id="btnAgregarProductoInventario"
+                >
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                    Agregar producto
+                </button>
+            </div>
+
+            <div class="inventario-filtros">
+
+                <input
+                    type="search"
+                    id="buscarInventario"
+                    placeholder="Buscar por código, producto o categoría..."
+                    aria-label="Buscar en el inventario"
+                >
+
+                <select
+                    id="filtroCategoriaInventario"
+                    aria-label="Filtrar por categoría"
+                >
+                    <option value="">Todas las categorías</option>
+                </select>
+
+                <button
+                    type="button"
+                    id="btnNuevaCategoriaInventario"
+                    class="btn-accion-mini"
+                    title="Crear una categoría"
+                >
+                    <i class="bi bi-plus-lg"></i> Categoría
+                </button>
+
+                <button
+                    type="button"
+                    id="btnEliminarCategoriaInventario"
+                    class="btn-accion-mini btn-eliminar-categoria-inventario"
+                    title="Eliminar la categoría seleccionada"
+                    disabled
+                >
+                    <i class="bi bi-trash3"></i> Eliminar categoría
+                </button>
+
+                <div class="panel-nueva-categoria" id="panelNuevaCategoriaInventario" hidden>
+                    <input
+                        type="text"
+                        id="nuevaCategoriaInventarioInput"
+                        maxlength="50"
+                        placeholder="Nombre de la nueva categoría"
+                        aria-label="Nombre de la nueva categoría"
+                    >
+                    <button type="button" id="btnGuardarCategoriaInventario" class="btn-agregar-categoria">
+                        Agregar
+                    </button>
+                    <button type="button" id="btnCancelarCategoriaInventario" class="btn-cancelar-categoria">
+                        Cancelar
+                    </button>
+                    <p class="mensaje-error-campo" id="categoriaInventarioError" hidden></p>
+                </div>
+
+                <select
+                    id="filtroEstadoInventario"
+                    aria-label="Filtrar por estado del stock"
+                >
+                    <option value="">Todos los estados</option>
+                    <option value="disponible">Disponible</option>
+                    <option value="bajo">Stock bajo</option>
+                    <option value="agotado">Agotado</option>
+                </select>
+
+            </div>
+
+            <p class="inventario-contador" id="contadorInventario" aria-live="polite">
+                Cargando inventario...
+            </p>
+
+            <div class="tabla-contenedor-responsiva">
+
+                <table class="tabla-moderna tabla-inventario">
+
+                    <thead>
+                        <tr>
+                            <th><button type="button" class="th-orden" data-orden-inventario="codigo">Código <i class="bi bi-arrow-down-up" aria-hidden="true"></i></button></th>
+                            <th><button type="button" class="th-orden" data-orden-inventario="producto">Producto <i class="bi bi-arrow-down-up" aria-hidden="true"></i></button></th>
+                            <th><button type="button" class="th-orden" data-orden-inventario="categoria">Categoría <i class="bi bi-arrow-down-up" aria-hidden="true"></i></button></th>
+                            <th><button type="button" class="th-orden" data-orden-inventario="stock">Disponible <i class="bi bi-arrow-down-up" aria-hidden="true"></i></button></th>
+                            <th><button type="button" class="th-orden" data-orden-inventario="minimo">Stock mínimo <i class="bi bi-arrow-down-up" aria-hidden="true"></i></button></th>
+                            <th><button type="button" class="th-orden" data-orden-inventario="estado">Estado <i class="bi bi-arrow-down-up" aria-hidden="true"></i></button></th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="inventarioStockBody">
+                        <tr class="fila-estado">
+                            <td colspan="7" class="celda-estado">
+                                <div class="estado-cargando" role="status">
+                                    <i class="bi bi-arrow-repeat spin" aria-hidden="true"></i>
+                                    <span>Cargando inventario...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="paginacion" id="paginacionInventario" hidden>
+                <button type="button" id="paginaInventarioAnterior" class="btn-paginacion">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior
+                </button>
+                <span id="paginaInventarioInfo" class="paginacion-info"></span>
+                <button type="button" id="paginaInventarioSiguiente" class="btn-paginacion">
+                    Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- HISTORIAL -->
+
+        <section class="recent-sales">
+
+            <h2>Historial de movimientos</h2>
+
+            <div class="historial-filtros" aria-label="Filtros del historial de movimientos">
+                <label>
+                    Desde
+                    <input type="date" id="historialFechaDesde">
+                </label>
+                <label>
+                    Hasta
+                    <input type="date" id="historialFechaHasta">
+                </label>
+                <label>
+                    Producto
+                    <input
+                        type="search"
+                        id="historialProducto"
+                        placeholder="Código o nombre"
+                    >
+                </label>
+                <label>
+                    Tipo
+                    <select id="historialTipo">
+                        <option value="">Todos</option>
+                        <option value="Entrada">Entrada</option>
+                        <option value="Salida">Salida</option>
+                        <option value="Ajuste positivo">Ajuste positivo</option>
+                        <option value="Ajuste negativo">Ajuste negativo</option>
+                    </select>
+                </label>
+                <label>
+                    Responsable
+                    <input
+                        type="search"
+                        id="historialUsuario"
+                        placeholder="Nombre del usuario"
+                    >
+                </label>
+                <button type="button" id="btnLimpiarHistorial" class="btn-accion-mini">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i> Limpiar filtros
+                </button>
+            </div>
+
+            <p class="inventario-contador" id="contadorHistorial" aria-live="polite">
+                Cargando movimientos...
+            </p>
+
+            <div class="tabla-contenedor-responsiva">
+
+                <table class="tabla-moderna tabla-historial">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Responsable</th>
+                            <th>Motivo</th>
+                            <th>Factura</th>
+                            <th>Comprobante</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="historialMovimientosBody">
+                        <tr class="fila-estado">
+                            <td colspan="9" class="celda-estado">
+                                <div class="estado-cargando" role="status">
+                                    <i class="bi bi-arrow-repeat spin" aria-hidden="true"></i>
+                                    <span>Cargando movimientos...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="paginacion" id="paginacionHistorial" hidden>
+                <button type="button" id="paginaHistorialAnterior" class="btn-paginacion">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior
+                </button>
+                <span id="paginaHistorialInfo" class="paginacion-info"></span>
+                <button type="button" id="paginaHistorialSiguiente" class="btn-paginacion">
+                    Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<!-- MODAL REUTILIZABLE DE RESUMEN -->
+<div class="modal" id="modalResumenInventario">
+    <div class="modal-content modal-resumen-inventario" role="dialog" aria-modal="true" aria-labelledby="resumenInventarioTitulo">
+        <button type="button" class="close-modal" id="cerrarResumenInventario" aria-label="Cerrar">×</button>
+
+        <h2 id="resumenInventarioTitulo">Detalle de inventario</h2>
+        <p class="resumen-inventario-descripcion" id="resumenInventarioDescripcion"></p>
+
+        <div class="resumen-inventario-herramientas">
+            <p class="resumen-inventario-contador" id="resumenInventarioContador" aria-live="polite"></p>
+            <input
+                type="search"
+                id="resumenInventarioBuscar"
+                placeholder="Buscar producto o categoría..."
+                aria-label="Buscar en el detalle"
+            >
+        </div>
+
+        <div class="tabla-contenedor-responsiva">
+            <table class="tabla-moderna tabla-inventario">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Disponible</th>
+                        <th>Stock mínimo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="resumenInventarioBody"></tbody>
+            </table>
+        </div>
+
+        <div class="paginacion" id="paginacionResumenInventario" hidden>
+            <button type="button" id="paginaResumenAnterior" class="btn-paginacion">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i> Anterior
+            </button>
+            <span id="paginaResumenInfo" class="paginacion-info"></span>
+            <button type="button" id="paginaResumenSiguiente" class="btn-paginacion">
+                Siguiente <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL DE MOVIMIENTO DE INVENTARIO -->
+<div class="modal" id="modalMovimientoInventario">
+    <div class="modal-content modal-movimiento-inventario" role="dialog" aria-modal="true" aria-labelledby="tituloModalMovimiento">
+        <button type="button" class="close-modal" id="cerrarModalMovimiento" aria-label="Cerrar">×</button>
+
+        <h2 id="tituloModalMovimiento">Registrar movimiento</h2>
+        <p class="modal-movimiento-ayuda">
+            Las entradas y ajustes quedan registrados en el historial. No se pueden editar después.
+        </p>
+
+        <form id="formMovimiento" class="form-movimiento-modal">
+
+            <label for="productoMovimientoBusqueda">Producto</label>
+            <input
+                type="search"
+                id="productoMovimientoBusqueda"
+                list="listaProductosMovimiento"
+                placeholder="Escribí el código o nombre del producto"
+                autocomplete="off"
+                required
+            >
+            <datalist id="listaProductosMovimiento"></datalist>
+            <p class="movimiento-producto-info" id="movimientoProductoInfo">
+                Seleccioná un producto para ver su stock actual.
+            </p>
+
+            <div class="movimiento-fila">
+                <div class="campo-inventario">
+                    <label for="tipoMovimiento">Tipo de movimiento</label>
+                    <select id="tipoMovimiento" required>
+                        <option value="">Seleccione un tipo</option>
+                        <option value="Entrada">Entrada</option>
+                        <option value="Salida">Salida</option>
+                        <option value="Ajuste positivo">Ajuste positivo</option>
+                        <option value="Ajuste negativo">Ajuste negativo</option>
+                    </select>
+                </div>
+
+                <div class="campo-inventario">
+                    <label for="cantidadMovimiento">Cantidad</label>
+                    <input type="number" id="cantidadMovimiento" min="1" step="1" required>
+                </div>
+            </div>
+
+            <div class="movimiento-stock-preview" aria-live="polite">
+                <span>Stock actual: <strong id="movimientoStockActual">—</strong></span>
+                <span>Stock resultante: <strong id="movimientoStockResultante">—</strong></span>
+            </div>
+
+            <label for="motivoMovimiento">Motivo obligatorio</label>
+            <textarea
+                id="motivoMovimiento"
+                maxlength="255"
+                placeholder="Ejemplo: Compra al proveedor, devolución, corrección de conteo"
+                required
+            ></textarea>
+
+            <label for="observacionesMovimiento">Observaciones <span class="etiqueta-opcional">(opcional)</span></label>
+            <textarea
+                id="observacionesMovimiento"
+                maxlength="255"
+                placeholder="Detalle adicional del movimiento"
+            ></textarea>
+
+            <p class="movimiento-responsable">
+                Responsable: <strong id="movimientoResponsable"></strong>
+            </p>
+
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" id="cancelarMovimiento">Cancelar</button>
+                <button type="submit" class="save-btn" id="guardarMovimiento">Registrar movimiento</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+<!-- MODAL DE STOCK MÍNIMO -->
+<div class="modal" id="modalStockMinimo">
+    <div class="modal-content modal-stock-minimo" role="dialog" aria-modal="true" aria-labelledby="tituloStockMinimo">
+        <button type="button" class="close-modal" id="cerrarStockMinimo" aria-label="Cerrar">×</button>
+
+        <h2 id="tituloStockMinimo">Configurar stock mínimo</h2>
+        <p class="modal-movimiento-ayuda" id="stockMinimoProducto"></p>
+
+        <form id="formStockMinimo" class="form-stock-minimo">
+            <label for="stockMinimoInput">Cantidad mínima para alertar stock bajo</label>
+            <input type="number" id="stockMinimoInput" min="0" step="1" required>
+
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" id="cancelarStockMinimo">Cancelar</button>
+                <button type="submit" class="save-btn" id="guardarStockMinimo">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- MODAL DE ALTA DE PRODUCTO -->
+<div class="modal" id="modalProductoInventario">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="tituloProductoInventario">
+        <button type="button" class="close-modal" id="cerrarProductoInventario" aria-label="Cerrar">×</button>
+
+        <h2 id="tituloProductoInventario">Agregar producto</h2>
+
+        <form id="formProductoInventario">
+
+            <label for="codigoProductoInventario">Código</label>
+            <input type="text" id="codigoProductoInventario" maxlength="20" autocomplete="off" required>
+
+            <label for="nombreProductoInventario">Nombre del producto</label>
+            <input
+                type="text"
+                id="nombreProductoInventario"
+                maxlength="100"
+                placeholder="Ej. Artesanía de madera"
+                required
+            >
+
+            <label for="descripcionProductoInventario">Descripción <span class="etiqueta-opcional">(opcional)</span></label>
+            <textarea
+                id="descripcionProductoInventario"
+                maxlength="255"
+                rows="3"
+                placeholder="Detalle breve del producto"
+            ></textarea>
+
+            <label for="categoriaProductoInventario">Categoría</label>
+            <div class="selector-categoria">
+                <select id="categoriaProductoInventario" required>
+                    <option value="">Seleccionar categoría</option>
+                </select>
+                <button
+                    type="button"
+                    id="btnNuevaCategoriaModalInventario"
+                    class="btn-nueva-categoria"
+                    title="Crear una nueva categoría al momento"
+                >
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                    <span>Nueva</span>
+                </button>
+            </div>
+
+            <div class="campo-nueva-categoria" id="campoNuevaCategoriaModalInventario" hidden>
+                <input
+                    type="text"
+                    id="nuevaCategoriaModalInventarioInput"
+                    maxlength="50"
+                    placeholder="Nombre de la nueva categoría"
+                    aria-label="Nombre de la nueva categoría"
+                    autocomplete="off"
+                >
+                <button type="button" id="btnGuardarCategoriaModalInventario" class="btn-agregar-categoria">
+                    Agregar
+                </button>
+                <button type="button" id="btnCancelarCategoriaModalInventario" class="btn-cancelar-categoria">
+                    Cancelar
+                </button>
+            </div>
+
+            <p class="mensaje-error-campo" id="categoriaModalInventarioError" hidden></p>
+
+            <label for="precioProductoInventario">Precio</label>
+            <input
+                type="number"
+                id="precioProductoInventario"
+                min="0.01"
+                step="0.01"
+                placeholder="C$ 0.00"
+                required
+            >
+
+            <label for="stockProductoInventario">Stock inicial</label>
+            <input
+                type="number"
+                id="stockProductoInventario"
+                min="0"
+                step="1"
+                placeholder="0"
+                required
+            >
+
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" id="cancelarProductoInventario">Cancelar</button>
+                <button type="submit" class="save-btn" id="guardarProductoInventario">Guardar producto</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+<!-- COMPROBANTE IMPRIMIBLE DE MOVIMIENTO -->
+<div class="comprobante-overlay" id="modalComprobanteMovimiento" hidden>
+    <div class="comprobante-hoja" role="dialog" aria-modal="true" aria-labelledby="comprobanteTitulo">
+        <div class="comprobante-encabezado">
+            <div class="comprobante-marca">
+                <img src="Logo.png" alt="Logotipo Nicaragua Souvenir">
+                <div>
+                    <strong>Nicaragua Souvenir</strong>
+                    <span class="comprobante-leyenda">Registrado en SOUVANIC</span>
+                </div>
+            </div>
+            <span class="comprobante-tipo" id="comprobanteTipo">Movimiento</span>
+        </div>
+
+        <h2 id="comprobanteTitulo">Comprobante de movimiento de inventario</h2>
+        <p class="comprobante-subtitulo" id="comprobanteConsecutivo"></p>
+
+        <div class="comprobante-detalle" id="comprobanteDetalle"></div>
+
+        <div class="comprobante-pie">
+            <p>Nicaragua Souvenir · Control de inventario</p>
+            <p class="comprobante-leyenda">Registrado en SOUVANIC</p>
+            <p id="comprobanteEmision"></p>
+        </div>
+
+        <div class="comprobante-acciones">
+            <button type="button" class="btn-cancelar-categoria" id="btnCerrarComprobante">
+                Cerrar
+            </button>
+            <button type="button" class="btn-primario" id="btnImprimirComprobante">
+                <i class="bi bi-printer" aria-hidden="true"></i>
+                Imprimir comprobante
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script src="sidebar.js"></script>
+<script src="auth.js"></script>
+<script src="notificaciones.js"></script>
+<script src="ui-estados.js"></script>
+<script src="categorias.js"></script>
+<script src="xlsx-export.js"></script>
+
+<script>
+
+if (!esAdministrador()) {
+
+    document.getElementById("btnAbrirMovimientoInventario").hidden = true;
+
+    document.getElementById("tituloInventario").textContent =
+        "Consulta de inventario";
+
+    document.getElementById("descripcionInventario").textContent =
+        "Consultá el stock disponible y el historial de movimientos.";
+}
+
+</script>
+
+<script src="inventario.js"></script>
+
+</body>
+</html>

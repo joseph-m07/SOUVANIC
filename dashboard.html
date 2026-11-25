@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <script>
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+            window.location.replace("index.html");
+        }
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - SOUVANIC</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+
+        <!-- BARRA LATERAL -->
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+
+                <img src="Logo.png" alt="Logotipo Nicaragua Souvenir">
+
+                <h2>SOUVANIC</h2>
+
+            </div>
+
+
+            <nav>
+                <a href="dashboard.html" class="active">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+
+                <a href="productos.html">
+                    <i class="bi bi-box-seam"></i> Productos
+                </a>
+
+                <a href="clientes.html">
+                    <i class="bi bi-people"></i> Clientes
+                </a>
+
+                <a href="facturas.html">
+                    <i class="bi bi-file-earmark-plus"></i> Nueva Factura
+                </a>
+
+                <a href="facturas.html#historial">
+                    <i class="bi bi-receipt"></i> Facturas
+                </a>
+
+                <a href="inventario.html">
+                    <i class="bi bi-boxes"></i> Inventario
+                </a>
+
+                <div class="sidebar-bottom"></div>
+            </nav>
+
+
+            <div class="decoracion-momotombo" aria-hidden="true">
+                <svg viewBox="0 0 250 120" xmlns="http://www.w3.org/2000/svg">
+                    <path d="
+            M 0 120
+            L 20 108
+            L 45 100
+            L 65 88
+            L 83 72
+            L 101 51
+            L 115 31
+            L 125 20
+            L 136 32
+            L 151 53
+            L 169 75
+            L 190 91
+            L 215 103
+            L 250 115
+            L 250 120
+            Z
+        " fill="currentColor" />
+                </svg>
+            </div>
+
+
+
+
+
+        </aside>
+
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content dashboard-bento">
+
+            <!-- ENCABEZADO EJECUTIVO DEL DASHBOARD -->
+            <header class="dashboard-header">
+                <div class="header-saludo">
+                    <div class="header-tag">
+                        <span class="badge-status-dot"></span>
+                        <span>Centro de Control Empresarial</span>
+                    </div>
+                    <h1 id="saludoDashboard">Dashboard</h1>
+                    <p id="fechaHoyDashboard" class="subtitulo-fecha">Cargando fecha...</p>
+                </div>
+
+                <div class="header-acciones">
+                    <div class="sincronizacion-tag">
+                        <i class="bi bi-clock-history"></i>
+                        <span id="horaActualizacion">Sincronizado</span>
+                    </div>
+                    <button type="button" id="btnActualizarDashboard" class="btn-secundario-icono" title="Sincronizar datos">
+                        <i class="bi bi-arrow-clockwise" id="iconoRecarga"></i>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- BENTO GRID - FILA 1: KPIs FINANCIEROS Y OPERATIVOS -->
+            <section class="kpi-bento-grid">
+
+                <!-- Ventas de Hoy -->
+                <article class="bento-kpi-card kpi-destacado kpi-interactivo" id="tarjetaVentasHoy" data-modal-dashboard="ventas-dia" role="button" tabindex="0" aria-haspopup="dialog" title="Ver desglose de ventas del día">
+                    <div class="kpi-header-line">
+                        <div class="kpi-icono kpi-icono-oro"><i class="bi bi-cash-stack"></i></div>
+                        <span class="kpi-badge-hoy">Hoy</span>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Ventas del Día</h3>
+                        <p class="kpi-valor" id="ventasHoy">C$ 0.00</p>
+                        <div class="kpi-meta" id="metaFacturasHoy">
+                            <span id="facturasHoyCount">0</span> facturas hoy
+                        </div>
+                        <span class="kpi-ver-detalle">Ver estadísticas y facturas <i class="bi bi-chevron-right"></i></span>
+                    </div>
+                </article>
+
+                <!-- Ventas del Mes -->
+                <article class="bento-kpi-card kpi-interactivo" id="tarjetaVentasMes" data-modal-dashboard="ventas-mes" role="button" tabindex="0" aria-haspopup="dialog" title="Ver desglose de ventas del mes">
+                    <div class="kpi-header-line">
+                        <div class="kpi-icono kpi-icono-azul"><i class="bi bi-calendar-check"></i></div>
+                        <span class="kpi-badge-mes">Mes</span>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Ventas del Mes</h3>
+                        <p class="kpi-valor" id="ventasMes">C$ 0.00</p>
+                        <div class="kpi-meta">Mes en curso</div>
+                        <span class="kpi-ver-detalle">Ver evolución y facturas <i class="bi bi-chevron-right"></i></span>
+                    </div>
+                </article>
+
+                <!-- Ticket Promedio -->
+                <article class="bento-kpi-card kpi-interactivo" id="tarjetaTicketPromedio" data-modal-dashboard="ticket-promedio" role="button" tabindex="0" aria-haspopup="dialog" title="Ver estadísticas del ticket promedio">
+                    <div class="kpi-header-line">
+                        <div class="kpi-icono kpi-icono-verde"><i class="bi bi-graph-up-arrow"></i></div>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Ticket Promedio</h3>
+                        <p class="kpi-valor" id="ticketPromedio">C$ 0.00</p>
+                        <div class="kpi-meta">Por venta emitida</div>
+                        <span class="kpi-ver-detalle">Ver evolución y estadísticas <i class="bi bi-chevron-right"></i></span>
+                    </div>
+                </article>
+
+                <!-- Facturas Totales -->
+                <article class="bento-kpi-card kpi-interactivo" id="tarjetaTotalFacturas" data-modal-dashboard="facturas-emitidas" role="button" tabindex="0" aria-haspopup="dialog" title="Ver facturas emitidas y su desglose">
+                    <div class="kpi-header-line">
+                        <div class="kpi-icono kpi-icono-celeste"><i class="bi bi-receipt"></i></div>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Facturas Emitidas</h3>
+                        <p class="kpi-valor" id="totalFacturas">0</p>
+                        <div class="kpi-meta">Comprobantes totales</div>
+                        <span class="kpi-ver-detalle">Ver facturas y desglose <i class="bi bi-chevron-right"></i></span>
+                    </div>
+                </article>
+
+                <!-- Catálogo de Productos -->
+                <article class="bento-kpi-card kpi-interactivo" id="tarjetaTotalProductos" data-modal-dashboard="catalogo-productos" role="button" tabindex="0" aria-haspopup="dialog" title="Ver catálogo de productos registrados">
+                    <div class="kpi-header-line">
+                        <div class="kpi-icono kpi-icono-marino"><i class="bi bi-boxes"></i></div>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Catálogo Productos</h3>
+                        <p class="kpi-valor" id="totalProductos">0</p>
+                        <div class="kpi-meta">Referencias registradas</div>
+                        <span class="kpi-ver-detalle">Ver catálogo y categorías <i class="bi bi-chevron-right"></i></span>
+                    </div>
+                </article>
+
+                <!-- Cartera de Clientes -->
+                <article class="bento-kpi-card kpi-interactivo" id="tarjetaTotalClientes" data-modal-dashboard="clientes" role="button" tabindex="0" aria-haspopup="dialog" title="Ver estadísticas de clientes">
+                    <div class="kpi-header-line">
+                        <div class="kpi-icono kpi-icono-indigo"><i class="bi bi-people"></i></div>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Clientes Registrados</h3>
+                        <p class="kpi-valor" id="totalClientes">0</p>
+                        <div class="kpi-meta">Cartera de clientes</div>
+                        <span class="kpi-ver-detalle">Ver actividad y estadísticas <i class="bi bi-chevron-right"></i></span>
+                    </div>
+                </article>
+
+                <!-- Stock Bajo -->
+                <article class="bento-kpi-card kpi-interactivo" id="tarjetaStockBajo" data-modal-dashboard="stock-bajo" role="button" tabindex="0" aria-haspopup="dialog" title="Ver productos con stock bajo">
+                    <div class="kpi-header-line">
+                        <div class="kpi-icono kpi-icono-ambar"><i class="bi bi-exclamation-triangle"></i></div>
+                        <span class="kpi-badge-alerta-ambar">Atención</span>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Stock Bajo</h3>
+                        <p class="kpi-valor" id="totalStockBajo">0</p>
+                        <div class="kpi-meta">Según mínimo configurado</div>
+                        <span class="kpi-ver-detalle">Ver productos afectados <i class="bi bi-chevron-right"></i></span>
+                    </div>
+                </article>
+
+                <!-- Productos Agotados -->
+                <article class="bento-kpi-card kpi-interactivo" id="tarjetaStockAgotado" data-modal-dashboard="agotados" role="button" tabindex="0" aria-haspopup="dialog" title="Ver productos agotados">
+                    <div class="kpi-header-line">
+                        <div class="kpi-icono kpi-icono-rojo"><i class="bi bi-x-octagon"></i></div>
+                        <span class="kpi-badge-alerta-rojo">Crítico</span>
+                    </div>
+                    <div class="kpi-info">
+                        <h3>Productos Agotados</h3>
+                        <p class="kpi-valor" id="totalStockAgotado">0</p>
+                        <div class="kpi-meta">Sin existencias</div>
+                        <span class="kpi-ver-detalle">Ver productos sin stock <i class="bi bi-chevron-right"></i></span>
+                    </div>
+                </article>
+
+            </section>
+
+            <!-- BENTO GRID - FILA 2: ANÁLISIS DE VENTAS Y TOP PRODUCTOS (ADMIN) -->
+            <div class="bento-grid-dos-columnas" id="seccionAnalisisFinanciero">
+
+                <!-- GRÁFICO DE EVOLUCIÓN DE VENTAS (7 DÍAS) -->
+                <section class="bento-panel" id="panelGraficoVentas">
+                    <div class="panel-encabezado">
+                        <div>
+                            <h2><i class="bi bi-bar-chart-line-fill"></i> Evolución de Ventas (Últimos 7 días)</h2>
+                            <p class="panel-subtitulo">Comportamiento de facturación diaria · orden lunes a domingo</p>
+                        </div>
+                        <div class="panel-badge-periodo">
+                            <span class="badge-total-label">Total 7 días:</span>
+                            <strong id="totalVentasSemana">C$ 0.00</strong>
+                        </div>
+                    </div>
+
+                    <div class="contenedor-grafico-bento" id="contenedorGraficoVentas">
+                        <div class="grafico-cargando">
+                            <i class="bi bi-arrow-repeat spin"></i> Cargando visualización...
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PRODUCTOS DESTACADOS / MÁS VENDIDOS -->
+                <section class="bento-panel" id="panelTopProductos">
+                    <div class="panel-encabezado">
+                        <div>
+                            <h2><i class="bi bi-trophy-fill"></i> Productos Más Vendidos</h2>
+                            <p class="panel-subtitulo">Artículos con mayor demanda histórica</p>
+                        </div>
+                        <div class="panel-acciones">
+                            <button type="button" class="enlace-ver-mas boton-enlace" data-modal-dashboard="productos">
+                                Ver detalle <i class="bi bi-chevron-right"></i>
+                            </button>
+                            <a href="productos.html" class="enlace-ver-mas">Catálogo <i class="bi bi-box-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="lista-top-productos" id="listaTopProductos">
+                        <div class="top-productos-cargando">
+                            <i class="bi bi-arrow-repeat spin"></i> Cargando productos destacados...
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- BENTO GRID - FILA 3: ALERTAS DE INVENTARIO Y ACTIVIDAD RECIENTE -->
+            <div class="bento-grid-dos-columnas">
+
+                <!-- ALERTAS DE INVENTARIO -->
+                <section class="bento-panel" id="alertasInventario">
+                    <div class="panel-encabezado">
+                        <div>
+                            <h2><i class="bi bi-shield-exclamation"></i> Alertas de Inventario</h2>
+                            <p class="panel-subtitulo">Productos en o por debajo de su stock mínimo configurado</p>
+                        </div>
+                        <a href="inventario.html" class="btn-accion-mini">
+                            <i class="bi bi-plus-lg"></i> Reabastecer
+                        </a>
+                    </div>
+
+                    <div class="tabla-contenedor-responsiva">
+                        <table class="tabla-moderna">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Stock</th>
+                                    <th>Mínimo</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alertasInventarioBody">
+                                <tr>
+                                    <td colspan="6" class="celda-cargando">
+                                        <i class="bi bi-arrow-repeat spin"></i> Cargando alertas de inventario...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- VENTAS RECIENTES -->
+                <section class="bento-panel" id="seccionVentasRecientes">
+                    <div class="panel-encabezado">
+                        <div>
+                            <h2><i class="bi bi-receipt-cutoff"></i> Ventas Recientes</h2>
+                            <p class="panel-subtitulo">Últimos comprobantes de venta emitidos</p>
+                        </div>
+                        <button type="button" class="enlace-ver-mas boton-enlace" data-modal-dashboard="ventas-recientes">
+                            Ver detalle <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="tabla-contenedor-responsiva">
+                        <table class="tabla-moderna">
+                            <thead>
+                                <tr>
+                                    <th>Factura</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ventasRecientesBody">
+                                <tr>
+                                    <td colspan="5" class="celda-cargando">
+                                        <i class="bi bi-arrow-repeat spin"></i> Cargando ventas recientes...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- DISTRIBUCIÓN FÍSICA DEL INVENTARIO -->
+            <section class="bento-panel panel-distribucion-inventario" id="panelDistribucionInventario">
+                <div class="panel-encabezado">
+                    <div>
+                        <h2><i class="bi bi-diagram-3-fill"></i> Distribución de Inventario</h2>
+                        <p class="panel-subtitulo">Productos registrados y unidades físicas disponibles por categoría</p>
+                    </div>
+                    <a href="inventario.html" class="enlace-ver-mas">
+                        Ir a inventario <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+
+                <div class="distribucion-resumen" id="distribucionResumen">
+                    <span class="distribucion-resumen-item"><i class="bi bi-collection"></i> Cargando distribución...</span>
+                </div>
+
+                <div class="distribucion-lista" id="distribucionLista">
+                    <div class="modal-estado"><i class="bi bi-arrow-repeat spin"></i> Cargando categorías...</div>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- MODAL DE DETALLE DEL DASHBOARD -->
+    <div class="modal-dashboard" id="modalDashboard" hidden>
+        <div class="modal-dashboard-fondo" data-cerrar-modal-dashboard></div>
+        <div class="modal-dashboard-contenido" role="dialog" aria-modal="true" aria-labelledby="modalDashboardTitulo">
+            <header class="modal-dashboard-encabezado">
+                <div class="modal-dashboard-titulos">
+                    <button type="button" class="modal-dashboard-volver" id="modalDashboardVolver" hidden>
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2 id="modalDashboardTitulo">Detalle</h2>
+                        <p id="modalDashboardSubtitulo" class="modal-dashboard-subtitulo"></p>
+                    </div>
+                </div>
+                <button type="button" class="modal-dashboard-cerrar" data-cerrar-modal-dashboard aria-label="Cerrar detalle">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </header>
+
+            <div class="modal-dashboard-filtros" id="modalDashboardFiltros" hidden></div>
+
+            <div class="modal-dashboard-cuerpo" id="modalDashboardCuerpo"></div>
+        </div>
+    </div>
+
+
+    <!-- ARCHIVOS JAVASCRIPT -->
+    <script src="sidebar.js"></script>
+    <script src="auth.js"></script>
+    <script src="dashboard.js"></script>
+
+</body>
+
+</html>
