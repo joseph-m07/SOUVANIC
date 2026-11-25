@@ -45,7 +45,16 @@ Todas las pantallas autenticadas (`dashboard.html`, `productos.html`, `clientes.
 - Promesa asíncrona (`Promise<boolean>`) accesible (`role="alertdialog"`, `aria-modal="true"`, cierre con `Escape` o clic fuera).
 - Modo `peligro: true` para acciones irreversibles (anular factura, eliminar cliente/producto), enfocando por defecto el botón **Cancelar** para prevenir clics accidentales.
 
-### 3.3 Flujo de Login (`index.html` + `login.js`)
+### 3.3 Estándar de Listados (Lista + Chevron `>` + Ventana de Opciones)
+Para mantener las tablas limpias, legibles y consistentes en escritorio y móvil:
+1. **Filas limpias sin saturación de botones**: En los módulos principales (**Socios**, **Productos**, **Historial de Facturas** e **Inventario**), no se muestran múltiples botones inline (`Editar`, `Eliminar`, `Ver`, etc.) por cada fila.
+2. **Fila clickeable + Chevron `>`**: Toda fila (`tr.socio-fila` dentro de `table.tabla-socios-lista`) es interactiva (`tabindex="0"`, `role="button"`, navegable por teclado con `Enter`/`Espacio`) y finaliza en una columna estrecha (`.col-chevron`) con un único indicador **`>`** (`.socio-chevron-btn`).
+3. **Ventana de Opciones**: Al hacer clic en cualquier parte de la fila o en `>`, se abre una ventana modal (`.socio-opciones-modal`) con:
+   - Encabezado e identidad del registro (nombre, código/ID y badges).
+   - Resumen de datos clave.
+   - Lista vertical de acciones disponibles (`.btn-socio-opcion`), respetando permisos por rol (`esAdministrador()`).
+
+### 3.4 Flujo de Login (`index.html` + `login.js`)
 - Diseño dividido (split shell): panel de formulario a la izquierda y panel de marca con logotipo a la derecha.
 - Estados de foco claros (`.login-input:focus-within`), alerta inline (`#loginAlerta`) y redirección automática a `dashboard.html` si ya hay sesión.
 

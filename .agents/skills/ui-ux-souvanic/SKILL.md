@@ -35,5 +35,10 @@ description: >-
 ## 3. Reglas de Interacción y Accesibilidad
 - **Prohibido usar `alert()`, `confirm()` o `prompt()` nativos**: usar siempre `SouvanicUI.notificar(mensaje, tipo)` y `await SouvanicUI.confirmar({ ..., peligro: true })`.
 - **Estados de tabla**: toda tabla debe mostrar estados explícitos (`cargando`, `vacio`, `error`, `sin resultados`) mediante `ui-estados.js`.
+- **Estándar obligatorio de Listados (Lista + `>` + Ventana de Opciones)**:
+  - No colocar múltiples botones de acción (`Editar`, `Eliminar`, `Ver`, `Desactivar`) directamente en cada fila de la tabla.
+  - Usar `table.tabla-socios-lista` con filas clickeables `tr.socio-fila` (`tabindex="0"`, `role="button"`, soporte para `Enter` y `Espacio`).
+  - La última columna (`th.col-chevron` / `td.col-chevron`) debe mostrar únicamente el botón discreto `.socio-chevron-btn` con `<i class="bi bi-chevron-right"></i>`.
+  - Al hacer clic en la fila o en `>`, abrir una ventana modal (`.socio-opciones-modal`) con el resumen del registro y sus acciones (`.socio-opciones-acciones` / `.btn-socio-opcion`).
 - **Modales**: incluir botón de cierre accesible (`aria-label="Cerrar"`), botón `Cancelar` y deshabilitar el botón `Guardar` mientras la petición está en curso para evitar envíos duplicados.
 - **Consistencia de dominio**: usar terminología clara para tienda mixta (pulpería, ropa, delivery) y badges diferenciados para clasificaciones (`Cliente`, `Proveedor`, `Empleado`).

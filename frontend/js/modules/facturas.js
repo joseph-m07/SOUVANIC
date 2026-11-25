@@ -2156,14 +2156,21 @@ function renderHistorialFacturas() {
         }
 
         const celdaAcciones = document.createElement("td");
+        celdaAcciones.className = "col-chevron";
         const botonDetalle = document.createElement("button");
 
         botonDetalle.type = "button";
-        botonDetalle.textContent = "Ver detalle";
-        botonDetalle.className = "ver-detalle-factura";
+        botonDetalle.className = "socio-chevron-btn ver-detalle-factura";
         botonDetalle.dataset.id = factura.IdFactura;
+        botonDetalle.setAttribute("aria-label", `Ver opciones de factura ${factura.IdFactura}`);
+        botonDetalle.innerHTML = '<i class="bi bi-chevron-right" aria-hidden="true"></i>';
 
         celdaAcciones.appendChild(botonDetalle);
+
+        fila.className = "socio-fila";
+        fila.tabIndex = 0;
+        fila.setAttribute("role", "button");
+        fila.dataset.id = factura.IdFactura;
 
         fila.append(
             celdaNumero,
@@ -2250,13 +2257,22 @@ function renderPaginacionFacturas() {
 }
 
 historialFacturasBody.addEventListener("click", function(event) {
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila) return;
 
-    const boton = event.target.closest(".ver-detalle-factura");
+    const idFactura = Number(fila.dataset.id);
+    if (!Number.isInteger(idFactura) || idFactura <= 0) return;
 
-    if (!boton) return;
+    abrirDetalleFactura(idFactura);
+});
 
-    const idFactura = Number(boton.dataset.id);
+historialFacturasBody.addEventListener("keydown", function(event) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const fila = event.target.closest("tr.socio-fila");
+    if (!fila) return;
+    event.preventDefault();
 
+    const idFactura = Number(fila.dataset.id);
     if (!Number.isInteger(idFactura) || idFactura <= 0) return;
 
     abrirDetalleFactura(idFactura);
