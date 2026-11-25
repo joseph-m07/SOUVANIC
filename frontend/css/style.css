@@ -7916,6 +7916,12 @@ tr.socio-fila:hover .socio-chevron-btn {
     gap: 16px;
 }
 
+.wizard-edicion-banner[hidden],
+.wizard-factura-contenedor[hidden],
+[data-wizard-paso][hidden] {
+    display: none !important;
+}
+
 .wizard-edicion-banner {
     display: flex;
     align-items: center;
